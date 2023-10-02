@@ -108,6 +108,8 @@ class SignInScreen extends StatelessWidget {
                                   onTapOutside: (event) => FocusManager
                                       .instance.primaryFocus!
                                       .unfocus(),
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   validator: (value) => ValidateFieldHelper()
                                       .validateField(value, false, false),
                                   decoration: InputDecoration(

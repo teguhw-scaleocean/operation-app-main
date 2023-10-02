@@ -147,25 +147,33 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ItemOverview> newList = [];
   List<StyleItemOverview> listTemporary = [
     StyleItemOverview(
+        name: "delivery orders",
         iconPath: 'assets/icon/home/0.png',
         color: ColorName.homeBlueColor,
         bgPath: 'assets/icon/home/0bg.png'),
     StyleItemOverview(
+        name: "receipts",
         iconPath: 'assets/icon/home/1.png',
-        color: ColorName.homeOrangeColor,
+        color: ColorName.homeGreenColor,
         bgPath: 'assets/icon/home/1bg.png'),
     StyleItemOverview(
+        name: "returns",
         iconPath: 'assets/icon/home/2.png',
-        color: ColorName.homeGreenColor,
-        bgPath: 'assets/icon/home/2bg.png'),
+        color: ColorName.homeOrangeColor,
+        bgPath: 'assets/icon/home/2bg.svg'),
     StyleItemOverview(
-        iconPath: 'assets/icon/home/3.png',
-        color: ColorName.homeRedColor,
-        bgPath: 'assets/icon/home/3bg.png'),
-    StyleItemOverview(
-        iconPath: 'assets/icon/home/4.png',
-        color: ColorName.homeYellowColor,
-        bgPath: 'assets/icon/home/4bg.png'),
+        name: "internal transfer",
+        iconPath: 'assets/icon/home/3.svg',
+        color: ColorName.purpleColor,
+        bgPath: 'assets/icon/home/3bg.svg'),
+    // StyleItemOverview(
+    //     iconPath: 'assets/icon/home/4.png',
+    //     color: ColorName.homeYellowColor,
+    //     bgPath: 'assets/icon/home/4bg.png'),
+    // StyleItemOverview(
+    //     iconPath: 'assets/icon/home/5.svg',
+    //     bgPath: 'assets/icon/home/5bg.svg',
+    //     color: const Color(0xFFD52B94))
   ];
   List<dynamic>? listOperations = [];
   // By Status
@@ -237,8 +245,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   newList.clear();
                   for (var item in listOverviews!) {
                     for (var itemStyle in listTemporary) {
-                      if (listOverviews?.indexOf(item) ==
-                          listTemporary.indexOf(itemStyle)) {
+                      if (itemStyle.name
+                          .toString()
+                          .toLowerCase()
+                          .contains(item.name.toString().toLowerCase())) {
                         newList.add(ItemOverview(
                           pickingTypeId: item.id,
                           warehouseName: item.warehouseId[1],
@@ -316,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               children: [
                                                 Padding(
                                                   padding: const EdgeInsets
-                                                          .symmetric(
+                                                      .symmetric(
                                                       vertical: 32,
                                                       horizontal: 16),
                                                   child: Column(
@@ -712,7 +722,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ? 'Pilih warehouse'
                                       : groupValue.name,
                                   overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
+                                  maxLines: 1,
                                   softWrap: true,
                                   style: BaseText.greyText14),
                             ),
@@ -1269,7 +1279,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(6),
-                          child: Image.asset(item.icon, height: 18, width: 18),
+                          child: (item.icon.toLowerCase().contains(".svg"))
+                              ? SvgPicture.asset(item.icon,
+                                  color: ColorName.whiteColor,
+                                  height: 18,
+                                  width: 18)
+                              : Image.asset(item.icon, height: 18, width: 18),
                         )),
                     const SizedBox(height: 16),
                     Text(item.titleTotal.toString(),
@@ -1289,13 +1304,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 Positioned(
                   top: 9.5,
                   right: 11,
-                  child: Image.asset(
-                    item.iconBg,
-                    // fit: BoxFit.cover,
-                    height: 56,
-                    width: 56,
-                    color: item.color.withOpacity(0.10),
-                  ),
+                  child: (item.iconBg.contains(".svg"))
+                      ? SvgPicture.asset(
+                          item.iconBg,
+                          height: 56,
+                          width: 56,
+                          color: item.color.withOpacity(0.10),
+                        )
+                      : Image.asset(
+                          item.iconBg,
+                          // fit: BoxFit.cover,
+                          height: 56,
+                          width: 56,
+                          color: item.color.withOpacity(0.10),
+                        ),
                 )
               ],
             ),
@@ -1350,11 +1372,13 @@ class ItemOverview {
 }
 
 class StyleItemOverview {
+  String name;
   String iconPath;
   String bgPath;
   Color color;
 
   StyleItemOverview({
+    required this.name,
     required this.iconPath,
     required this.bgPath,
     required this.color,

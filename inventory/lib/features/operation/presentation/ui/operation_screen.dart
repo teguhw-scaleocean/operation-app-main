@@ -157,7 +157,7 @@ class _OperationScreenState extends State<OperationScreen>
 
     _tabController = TabController(length: 5, vsync: this);
 
-    // _tabController.animateTo(0);
+    _tabController.animateTo(0);
   }
 
   @override
@@ -330,45 +330,20 @@ class _OperationScreenState extends State<OperationScreen>
                               state.operationBackOrderState.status;
 
                           if (status.isError) {
-                            final errorStatus =
-                                state.operationState.failure?.errorMessage;
-                            if (errorStatus
-                                .toString()
-                                .toLowerCase()
-                                .contains('500')) {
-                              buildGeneralDialog(
-                                  context, 'Failed to load data');
-                            }
-                          } else if (statusReady.isError) {
-                            final errorStatusReady =
-                                state.operationReadyState.failure?.errorMessage;
-                            if (errorStatusReady
-                                .toString()
-                                .toLowerCase()
-                                .contains('500')) {
-                              buildGeneralDialog(
-                                  context, 'Failed to load data');
-                            }
-                          } else if (statusWaiting.isError) {
-                            final errorStatusWaiting =
-                                state.operationReadyState.failure?.errorMessage;
-                            if (errorStatusWaiting
-                                .toString()
-                                .toLowerCase()
-                                .contains('500')) {
-                              buildGeneralDialog(
-                                  context, 'Failed to load data');
-                            }
-                          } else if (statusBackOrder.isError) {
-                            final errorStatusBackOrder =
-                                state.operationReadyState.failure?.errorMessage;
-                            if (errorStatusBackOrder
-                                .toString()
-                                .toLowerCase()
-                                .contains('500')) {
-                              buildGeneralDialog(
-                                  context, 'Failed to load data');
-                            }
+                            // final errorStatus =
+                            //     state.operationState.failure?.errorMessage;
+                            // if (errorStatus
+                            //     .toString()
+                            //     .toLowerCase()
+                            //     .contains('500')) {
+                            errorDialog(context, "Opss Gagal",
+                                    "Gagal memuat, silahkan coba lagi")
+                                .then((value) => Future.delayed(
+                                        const Duration(seconds: 4), () {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    }));
+                            // }
                           } else if (status.isHasData) {
                             // _loadingOverlay.hide();
                             setState(() {});
@@ -385,7 +360,28 @@ class _OperationScreenState extends State<OperationScreen>
                                 difference = daysBetween(
                                     scheduleDateTime, DateTime.now());
 
-                                log("difference: $difference");
+                                bool isLate = (difference > 0) ? true : false;
+                                bool isBackOrder =
+                                    (item['backorder_id'] != false)
+                                        ? true
+                                        : false;
+                                String statusConverted = "";
+
+                                if (item['state'] == "assigned") {
+                                  // Ready
+                                  statusConverted = "Ready";
+                                } else if (item['state'] == "confirmed") {
+                                  // Waiting
+                                  statusConverted = "Waiting";
+                                } else if (isLate &&
+                                        item['state'] == "assigned" ||
+                                    item['state'] == "confirmed") {
+                                  // Terlambat
+                                  statusConverted = "Terlambat";
+                                } else if (isBackOrder) {
+                                  // Back Order
+                                  statusConverted = "Back Order";
+                                }
 
                                 return OperationType(
                                     pickingId: item['id'],
@@ -449,7 +445,17 @@ class _OperationScreenState extends State<OperationScreen>
                                 difference = daysBetween(
                                     scheduleDateTime, DateTime.now());
 
-                                log("difference: $difference");
+                                bool isLate = (difference > 0) ? true : false;
+                                bool isBackOrder =
+                                    (item['backorder_id'] != false)
+                                        ? true
+                                        : false;
+                                String statusConverted = "";
+
+                                if (item['state'] == "assigned") {
+                                  // Ready
+                                  statusConverted = "Ready";
+                                }
 
                                 return OperationType(
                                     pickingId: item['id'],
@@ -459,13 +465,11 @@ class _OperationScreenState extends State<OperationScreen>
                                         ? ""
                                         : item['partner_id'][1],
                                     location: item['name'],
-                                    status: item['state'],
+                                    status: statusConverted,
                                     sku: item['origin'],
                                     date: item['scheduled_date'].toString(),
-                                    isLate: (difference > 0) ? true : false,
-                                    isBackOrder: (item['backorder_id'] != false)
-                                        ? true
-                                        : false,
+                                    isLate: isLate,
+                                    isBackOrder: isBackOrder,
                                     backOrder: (item['backorder_id'] == false)
                                         ? <dynamic>[]
                                         : item['backorder_id']);
@@ -479,9 +483,9 @@ class _OperationScreenState extends State<OperationScreen>
                                   .toList();
                               log("listResultReadyTemp ${listResultReadyTemp.map((e) => e.name).toList()}");
 
-                              listResultReady = listResultReady
-                                  .where((element) => element.isLate != true)
-                                  .toList();
+                              // listResultReady = listResultReady
+                              //     .where((element) => element.isLate != true)
+                              //     .toList();
                             }
                           } else if (statusWaiting.isHasData) {
                             // _loadingOverlay.hide();
@@ -501,7 +505,17 @@ class _OperationScreenState extends State<OperationScreen>
                                 difference = daysBetween(
                                     scheduleDateTime, DateTime.now());
 
-                                log("difference: $difference");
+                                bool isLate = (difference > 0) ? true : false;
+                                bool isBackOrder =
+                                    (item['backorder_id'] != false)
+                                        ? true
+                                        : false;
+                                String statusConverted = "";
+
+                                if (item['state'] == "confirmed") {
+                                  // Waiting
+                                  statusConverted = "Waiting";
+                                }
 
                                 return OperationType(
                                     pickingId: item['id'],
@@ -511,13 +525,11 @@ class _OperationScreenState extends State<OperationScreen>
                                         ? ""
                                         : item['partner_id'][1],
                                     location: item['name'],
-                                    status: item['state'],
+                                    status: statusConverted,
                                     sku: item['origin'],
                                     date: item['scheduled_date'].toString(),
-                                    isLate: (difference > 0) ? true : false,
-                                    isBackOrder: (item['backorder_id'] != false)
-                                        ? true
-                                        : false,
+                                    isLate: isLate,
+                                    isBackOrder: isBackOrder,
                                     backOrder: (item['backorder_id'] == false)
                                         ? <dynamic>[]
                                         : item['backorder_id']);
@@ -546,7 +558,17 @@ class _OperationScreenState extends State<OperationScreen>
                                 difference = daysBetween(
                                     scheduleDateTime, DateTime.now());
 
-                                log("difference: $difference");
+                                bool isLate = (difference > 0) ? true : false;
+                                bool isBackOrder =
+                                    (item['backorder_id'] != false)
+                                        ? true
+                                        : false;
+                                String statusConverted = "";
+
+                                if (isBackOrder) {
+                                  // Back Order
+                                  statusConverted = "Back Order";
+                                }
 
                                 return OperationType(
                                     pickingId: item['id'],
@@ -556,13 +578,11 @@ class _OperationScreenState extends State<OperationScreen>
                                         ? ""
                                         : item['partner_id'][1],
                                     location: item['name'],
-                                    status: item['state'],
+                                    status: statusConverted,
                                     sku: item['origin'],
                                     date: item['scheduled_date'].toString(),
-                                    isLate: (difference > 0) ? true : false,
-                                    isBackOrder: (item['backorder_id'] != false)
-                                        ? true
-                                        : false,
+                                    isLate: isLate,
+                                    isBackOrder: isBackOrder,
                                     backOrder: (item['backorder_id'] == false)
                                         ? <dynamic>[]
                                         : item['backorder_id']);
@@ -576,8 +596,9 @@ class _OperationScreenState extends State<OperationScreen>
                             }
                           }
                         },
-                        child: SizedBox(
+                        child: Container(
                           height: mediaQuery.height * 2,
+                          color: ColorName.whiteColor,
                           child: Builder(builder: (context) {
                             final status = context
                                 .read<OperationCubit>()
@@ -606,7 +627,7 @@ class _OperationScreenState extends State<OperationScreen>
                                 children: [
                                   (status.isLoading)
                                       ? const SizedBox()
-                                      : (status.isHasData && listResult.isEmpty)
+                                      : (listResult.isEmpty)
                                           ? buildEmptyResultOperation(context)
                                           : Container(
                                               // inventory-v1.0.12-1
@@ -672,8 +693,7 @@ class _OperationScreenState extends State<OperationScreen>
                                   // const Center(child: Text('Semua Content')),
                                   (statusReady.isLoading)
                                       ? const SizedBox()
-                                      : (!statusReady.isLoading &&
-                                              listResultReady.isEmpty)
+                                      : (listResultReady.isEmpty)
                                           ? buildEmptyResultOperation(context)
                                           : Container(
                                               // inventory-v1.0.12-1
@@ -703,30 +723,6 @@ class _OperationScreenState extends State<OperationScreen>
                                                           listResultReady[
                                                               index];
 
-                                                      if (item.status ==
-                                                          "confirmed") {
-                                                        // Waiting
-                                                        item.status = "Waiting";
-                                                      } else if (item.isLate ==
-                                                              true &&
-                                                          item.status ==
-                                                              "assigned") {
-                                                        // Terlambat
-                                                        item.status =
-                                                            "Terlambat";
-                                                      } else if (item.isLate ==
-                                                              false &&
-                                                          item.status ==
-                                                              "assigned") {
-                                                        // Ready
-                                                        item.status = "Ready";
-                                                      } else if (item
-                                                          .isBackOrder) {
-                                                        // Back Order
-                                                        item.status =
-                                                            "Back Order";
-                                                      } else {}
-
                                                       return buildOperationItem(
                                                           item: item);
                                                     }),
@@ -735,8 +731,7 @@ class _OperationScreenState extends State<OperationScreen>
 
                                   (statusWaiting.isLoading)
                                       ? const SizedBox()
-                                      : (!statusWaiting.isLoading &&
-                                              listResultWaiting.isEmpty)
+                                      : (listResultWaiting.isEmpty)
                                           ? buildEmptyResultOperation(context)
                                           : Container(
                                               // inventory-v1.0.12-1
@@ -764,30 +759,6 @@ class _OperationScreenState extends State<OperationScreen>
                                                       var item =
                                                           listResultWaiting[
                                                               index];
-
-                                                      if (item.status ==
-                                                          "confirmed") {
-                                                        // Waiting
-                                                        item.status = "Waiting";
-                                                      } else if (item.isLate ==
-                                                              true &&
-                                                          item.status ==
-                                                              "assigned") {
-                                                        // Terlambat
-                                                        item.status =
-                                                            "Terlambat";
-                                                      } else if (item.isLate ==
-                                                              false &&
-                                                          item.status ==
-                                                              "assigned") {
-                                                        // Ready
-                                                        item.status = "Ready";
-                                                      } else if (item
-                                                          .isBackOrder) {
-                                                        // Back Order
-                                                        item.status =
-                                                            "Back Order";
-                                                      } else {}
 
                                                       return buildOperationItem(
                                                           item: item);
@@ -819,27 +790,6 @@ class _OperationScreenState extends State<OperationScreen>
                                                   var item =
                                                       listResultLate[index];
 
-                                                  if (item.status ==
-                                                      "confirmed") {
-                                                    // Waiting
-                                                    item.status = "Waiting";
-                                                  } else if (item.isLate ==
-                                                          true &&
-                                                      item.status ==
-                                                          "assigned") {
-                                                    // Terlambat
-                                                    item.status = "Terlambat";
-                                                  } else if (item.isLate ==
-                                                          false &&
-                                                      item.status ==
-                                                          "assigned") {
-                                                    // Ready
-                                                    item.status = "Ready";
-                                                  } else if (item.isBackOrder) {
-                                                    // Back Order
-                                                    item.status = "Back Order";
-                                                  } else {}
-
                                                   return buildOperationItem(
                                                       item: item);
                                                 }),
@@ -848,8 +798,7 @@ class _OperationScreenState extends State<OperationScreen>
 
                                   (statusBackOrder.isLoading)
                                       ? const SizedBox()
-                                      : (!statusBackOrder.isLoading &&
-                                              listResultBackOrder.isEmpty)
+                                      : (listResultBackOrder.isEmpty)
                                           ? buildEmptyResultOperation(context)
                                           : Container(
                                               // inventory-v1.0.12-1
@@ -879,30 +828,6 @@ class _OperationScreenState extends State<OperationScreen>
                                                       var item =
                                                           listResultBackOrder[
                                                               index];
-
-                                                      if (item.status ==
-                                                          "confirmed") {
-                                                        // Waiting
-                                                        item.status = "Waiting";
-                                                      } else if (item.isLate ==
-                                                              true &&
-                                                          item.status ==
-                                                              "assigned") {
-                                                        // Terlambat
-                                                        item.status =
-                                                            "Terlambat";
-                                                      } else if (item.isLate ==
-                                                              false &&
-                                                          item.status ==
-                                                              "assigned") {
-                                                        // Ready
-                                                        item.status = "Ready";
-                                                      } else if (item
-                                                          .isBackOrder) {
-                                                        // Back Order
-                                                        item.status =
-                                                            "Back Order";
-                                                      } else {}
 
                                                       return buildOperationItem(
                                                           item: item);

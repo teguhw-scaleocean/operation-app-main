@@ -14,6 +14,39 @@ Future<dynamic> buildGeneralDialog(BuildContext context, String title) {
       });
 }
 
+Future errorDialog(BuildContext context, String title, String content) async {
+  showCupertinoDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          elevation: 3,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: SizedBox(
+            height: 120,
+            width: 300,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Text(title,
+                      textAlign: TextAlign.left,
+                      style: BaseText.blackText18
+                          .copyWith(fontWeight: BaseText.semiBold)),
+                  const SizedBox(height: 8),
+                  Text(content,
+                      textAlign: TextAlign.left, style: BaseText.greyText12),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          ),
+        );
+      });
+}
+
 confirmToSubmitDialog(BuildContext context, void Function()? onTap) {
   var mediaQuery = MediaQuery.of(context).size;
   showCupertinoDialog(

@@ -38,6 +38,7 @@ class ColorName {
   static const Color gradient2Color = Color(0xFF001D39);
   static const Color disableColor = Color(0xFFE6EAEF);
   static const Color newGreyColor = Color(0xFFA6A6A6);
+  static const Color purpleColor = Color(0xFF7239EA);
 }
 
 class BaseText {
