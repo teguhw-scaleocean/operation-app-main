@@ -1,0 +1,105 @@
+{
+    "jsonrpc": "2.0",
+    "id": null,
+    "result": [
+        {
+            "id": 2,
+            "name": "Chicago 1",
+            "active": true,
+            "company_id": [
+                2,
+                "My Company (Chicago)"
+            ],
+            "partner_id": [
+                43,
+                "My Company (Chicago), Jeff Lawson"
+            ],
+            "view_location_id": [
+                27,
+                "CHIC1"
+            ],
+            "lot_stock_id": [
+                28,
+                "CHIC1/Stock"
+            ],
+            "code": "CHIC1",
+            "route_ids": [
+                5,
+                6
+            ],
+            "reception_steps": "one_step",
+            "delivery_steps": "ship_only",
+            "wh_input_stock_loc_id": [
+                29,
+                "CHIC1/Input"
+            ],
+            "wh_qc_stock_loc_id": [
+                30,
+                "CHIC1/Quality Control"
+            ],
+            "wh_output_stock_loc_id": [
+                31,
+                "CHIC1/Output"
+            ],
+            "wh_pack_stock_loc_id": [
+                32,
+                "CHIC1/Packing Zone"
+            ],
+            "mto_pull_id": [
+                10,
+                "My Co: Stock → Customers (MTO)"
+            ],
+            "pick_type_id": [
+                9,
+                "Chicago 1: Pick"
+            ],
+            "pack_type_id": [
+                10,
+                "Chicago 1: Pack"
+            ],
+            "out_type_id": [
+                8,
+                "Chicago 1: Delivery Orders"
+            ],
+            "in_type_id": [
+                7,
+                "Chicago 1: Receipts"
+            ],
+            "int_type_id": [
+                11,
+                "Chicago 1: Internal Transfers"
+            ],
+            "return_type_id": [
+                12,
+                "Chicago 1: Returns"
+            ],
+            "crossdock_route_id": [
+                7,
+                "My Company (Chicago): Cross-Dock"
+            ],
+            "reception_route_id": [
+                5,
+                "My Company (Chicago): Receive in 1 step (stock)"
+            ],
+            "delivery_route_id": [
+                6,
+                "My Company (Chicago): Deliver in 1 step (ship)"
+            ],
+            "resupply_wh_ids": [],
+            "resupply_route_ids": [],
+            "sequence": 10,
+            "__last_update": "2023-06-05 03:36:50",
+            "display_name": "Chicago 1",
+            "create_uid": [
+                1,
+                "ScaleOcean Bot"
+            ],
+            "create_date": "2023-06-05 03:36:50",
+            "write_uid": [
+                1,
+                "ScaleOcean Bot"
+            ],
+            "write_date": "2023-06-05 03:36:50"
+        }
+    ]
+}
