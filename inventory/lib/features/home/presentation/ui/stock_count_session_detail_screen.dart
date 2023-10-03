@@ -172,19 +172,17 @@ class _StockCountSessionDetailScreenState
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       buildFieldIconDetail(
-                          title: 'Tanggal',
-                          value: DateFormat("EEEE, d MMMM yyyy", "id_ID")
-                              .format(DateTime.parse(stockSessionLines
-                                  .dateCreate
-                                  .substring(0, 10))),
-                          icon: const Icon(Icons.date_range, size: 14)),
+                        title: 'Tanggal',
+                        value: DateFormat("EEEE, d MMMM yyyy", "id_ID").format(
+                            DateTime.parse(
+                                stockSessionLines.dateCreate.substring(0, 10))),
+                      ),
                       buildFieldIconDetail(
-                          title: 'Jam',
-                          value: stockSessionLines.dateCreate
-                              .toString()
-                              .substring(11),
-                          icon:
-                              const Icon(Icons.access_time_rounded, size: 14)),
+                        title: ' Jam',
+                        value: stockSessionLines.dateCreate
+                            .toString()
+                            .substring(10, 16),
+                      ),
                     ],
                   ),
                   const Padding(
@@ -340,29 +338,28 @@ class _StockCountSessionDetailScreenState
               //     ])),
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (isSubmitted) {
-                        log('disable confirm button');
-                        _buildDisableCountQuantity(context);
-                      } else {
-                        countState(() {
-                          item.value--;
-                          quantity = item.value.toString();
-                          controller = TextEditingController(
-                            text: quantity,
-                          );
-                        });
-                        log(item.value.toString());
-                      }
-                    },
-                    child: buildCountButton(
-                        const Icon(
-                          Icons.remove,
-                          size: 16,
+                  (isSubmitted)
+                      ? const SizedBox()
+                      : GestureDetector(
+                          onTap: () {
+                            if (item.value > 0) {
+                              countState(() {
+                                item.value--;
+                                quantity = item.value.toString();
+                                controller = TextEditingController(
+                                  text: quantity,
+                                );
+                              });
+                              log(item.value.toString());
+                            }
+                          },
+                          child: buildCountButton(
+                              const Icon(
+                                Icons.remove,
+                                size: 16,
+                              ),
+                              isSubmitted),
                         ),
-                        isSubmitted),
-                  ),
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: SizedBox(
@@ -395,29 +392,26 @@ class _StockCountSessionDetailScreenState
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      countState(() {
-                        if (isSubmitted) {
-                          _buildDisableCountQuantity(context);
-                          log('disable confirm button');
-                        } else {
-                          item.value++;
-                          quantity = item.value.toString();
-                          controller = TextEditingController(
-                            text: quantity,
-                          );
-                        }
-                      });
-                      log(item.value.toString());
-                    },
-                    child: buildCountButton(
-                        const Icon(
-                          Icons.add,
-                          size: 16,
-                        ),
-                        isSubmitted),
-                  )
+                  (isSubmitted)
+                      ? const SizedBox()
+                      : GestureDetector(
+                          onTap: () {
+                            countState(() {
+                              item.value++;
+                              quantity = item.value.toString();
+                              controller = TextEditingController(
+                                text: quantity,
+                              );
+                            });
+                            log(item.value.toString());
+                          },
+                          child: buildCountButton(
+                              const Icon(
+                                Icons.add,
+                                size: 16,
+                              ),
+                              isSubmitted),
+                        )
                 ],
               ),
             ],

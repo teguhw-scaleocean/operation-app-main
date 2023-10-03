@@ -29,6 +29,7 @@ class ColorName {
   static const Color yellowColor = Color(0xFFFFC003);
   static Color primaryColor = Colors.pink.shade100.withOpacity(0.5);
   static const Color doneColor = Color(0xff7BB31A);
+  static const Color scannedColor = Color(0xFFD0E7D2);
   // ready warna biru, done warna hijau
   static const Color readyColor = Color(0xff1798EE);
   static const Color waitingColor = Color(0xffFFAB00);

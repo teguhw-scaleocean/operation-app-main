@@ -59,13 +59,13 @@ confirmToSubmitDialog(BuildContext context, void Function()? onTap) {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: SizedBox(
-              height: 180,
+              height: 170,
               width: 328,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Text(const ResourceConstants().submitTitle,
                         textAlign: TextAlign.left,
                         style: BaseText.blackText16
@@ -73,7 +73,7 @@ confirmToSubmitDialog(BuildContext context, void Function()? onTap) {
                     const SizedBox(height: 8),
                     Text(const ResourceConstants().submitContent,
                         textAlign: TextAlign.left, style: BaseText.greyText12),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -141,13 +141,13 @@ confirmToSignOutDialog(BuildContext context, void Function()? onTap) {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: SizedBox(
-              height: 180,
+              height: 170,
               width: 328,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Text('Sign Out',
                         textAlign: TextAlign.left,
                         style: BaseText.blackText16
@@ -155,7 +155,7 @@ confirmToSignOutDialog(BuildContext context, void Function()? onTap) {
                     const SizedBox(height: 8),
                     Text(const ResourceConstants().signOutContent,
                         textAlign: TextAlign.left, style: BaseText.greyText12),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [

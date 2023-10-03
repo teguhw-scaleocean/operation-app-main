@@ -313,7 +313,7 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
                                               child: Center(
                                                 child: Padding(
                                                   padding: const EdgeInsets
-                                                          .symmetric(
+                                                      .symmetric(
                                                       horizontal: 8,
                                                       vertical: 4),
                                                   child: Text(
@@ -344,28 +344,25 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           buildFieldIconDetail(
-                                              title: 'Tanggal',
-                                              value: DateFormat(
-                                                      "EEEE, d MMMM yyyy",
-                                                      "id_ID")
-                                                  .format(DateTime.parse(tanggal
-                                                      .substring(0, 10))),
-                                              icon: const Icon(Icons.date_range,
-                                                  size: 14)),
+                                            title: 'Tanggal',
+                                            value: DateFormat(
+                                                    "EEEE, d MMMM yyyy",
+                                                    "id_ID")
+                                                .format(DateTime.parse(
+                                                    tanggal.substring(0, 10))),
+                                          ),
                                           buildFieldIconDetail(
-                                              title: 'Jam',
-                                              value: tanggal.substring(10),
-                                              icon: const Icon(
-                                                  Icons.access_time_rounded,
-                                                  size: 14)),
+                                            title: ' Jam',
+                                            value: tanggal.substring(10, 16),
+                                          ),
                                         ],
                                       ),
                                       const Padding(
                                         padding:
                                             EdgeInsets.symmetric(vertical: 10),
                                         child: Divider(
-                                          thickness: 1.5,
-                                          color: ColorName.lightGreyColor,
+                                          thickness: 2,
+                                          color: ColorName.borderColor,
                                         ),
                                       ),
                                       buildLabelLocation(
@@ -402,9 +399,9 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
                                                   padding: EdgeInsets.symmetric(
                                                       vertical: 5),
                                                   child: Divider(
-                                                    thickness: 1.5,
-                                                    color: ColorName
-                                                        .lightGreyColor,
+                                                    thickness: 2,
+                                                    color:
+                                                        ColorName.borderColor,
                                                   ),
                                                 );
                                               },
@@ -541,12 +538,12 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
       countItemState = countState;
       return SmoothHighlight(
         enabled: index == targetIndex,
-        color: ColorName.doneColor,
+        color: ColorName.scannedColor,
         child: ListTile(
           key: index == targetIndex ? key : GlobalKey(),
           contentPadding: EdgeInsets.zero,
           title: Text(
-            productName.toString(),
+            "${productName.toString()}\n",
             style: BaseText.blackText16.copyWith(fontWeight: BaseText.semiBold),
           ),
           subtitle: Row(
@@ -567,34 +564,33 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
                   ])),
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (isSubmitted) {
-                        log('disable confirm button');
-                        _buildDisableCountQuantity(context);
-                      } else {
-                        countState(() {
-                          item.value--;
-                          quantity = item.value.toString();
-                          controller = TextEditingController(
-                            text: quantity,
-                          );
-                        });
-                        log(item.value.toString());
-                      }
-                    },
-                    child: buildCountButton(
-                        const Icon(
-                          Icons.remove,
-                          size: 16,
+                  (isSubmitted)
+                      ? const SizedBox()
+                      : GestureDetector(
+                          onTap: () {
+                            if (item.value > 0) {
+                              countState(() {
+                                item.value--;
+                                quantity = item.value.toString();
+                                controller = TextEditingController(
+                                  text: quantity,
+                                );
+                              });
+                              log(item.value.toString());
+                            }
+                          },
+                          child: buildCountButton(
+                              const Icon(
+                                Icons.remove,
+                                size: 16,
+                              ),
+                              isSubmitted),
                         ),
-                        isSubmitted),
-                  ),
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: SizedBox(
                       height: 20,
-                      width: 38,
+                      width: 60,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 3),
                         // child: Text(item.toString()),
@@ -623,29 +619,26 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      countState(() {
-                        if (isSubmitted) {
-                          _buildDisableCountQuantity(context);
-                          log('disable confirm button');
-                        } else {
-                          item.value++;
-                          quantity = item.value.toString();
-                          controller = TextEditingController(
-                            text: quantity,
-                          );
-                        }
-                      });
-                      log(item.value.toString());
-                    },
-                    child: buildCountButton(
-                        const Icon(
-                          Icons.add,
-                          size: 16,
-                        ),
-                        isSubmitted),
-                  )
+                  (isSubmitted)
+                      ? const SizedBox()
+                      : GestureDetector(
+                          onTap: () {
+                            countState(() {
+                              item.value++;
+                              quantity = item.value.toString();
+                              controller = TextEditingController(
+                                text: quantity,
+                              );
+                            });
+                            log(item.value.toString());
+                          },
+                          child: buildCountButton(
+                              const Icon(
+                                Icons.add,
+                                size: 16,
+                              ),
+                              isSubmitted),
+                        )
                 ],
               ),
             ],
@@ -742,7 +735,7 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
                   callSuccessScanMessage(context);
                   Timer(const Duration(seconds: 1), () {
                     Scrollable.ensureVisible(key.currentContext!,
-                            duration: const Duration(milliseconds: 80),
+                            // duration: const Duration(milliseconds: 80),
                             curve: Curves.fastOutSlowIn)
                         .then((value) => targetIndex = 11111);
                   });

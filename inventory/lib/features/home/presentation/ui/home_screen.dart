@@ -761,6 +761,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<dynamic> _buildSelectWarehouse(BuildContext context) {
     return showModalBottomSheet(
         isScrollControlled: false,
+        showDragHandle: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20), topRight: Radius.circular(20)),
@@ -772,162 +773,139 @@ class _HomeScreenState extends State<HomeScreen> {
 
             return SingleChildScrollView(
               physics: const NeverScrollableScrollPhysics(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 16),
-                  Container(
-                    height: 6,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
-                      color: ColorName.lightNewGreyColor,
+              child: Container(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                // height: mediaQuery.height / 1.4,
+                width: double.infinity,
+                child: ListView(
+                  shrinkWrap: true,
+                  // mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Pilih warehouse',
+                          style: BaseText.mainTextStyle14
+                              .copyWith(fontWeight: BaseText.semiBold),
+                        ),
+                        // const Spacer(flex: 2),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).maybePop(),
+                          icon: const Icon(Icons.close,
+                              color: ColorName.mainColor, size: 16),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 0),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      height: mediaQuery.height / 1.4,
-                      width: double.infinity,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Pilih warehouse',
-                                style: BaseText.mainTextStyle14
-                                    .copyWith(fontWeight: BaseText.semiBold),
-                              ),
-                              const Spacer(flex: 2),
-                              IconButton(
-                                onPressed: () =>
-                                    Navigator.of(context).maybePop(),
-                                icon: const Icon(Icons.close,
-                                    color: ColorName.mainColor, size: 16),
-                              ),
-                            ],
-                          ),
-                          Flexible(
-                            flex: 2,
-                            child: CupertinoScrollbar(
-                              thumbVisibility: true,
+                    Flexible(
+                      // flex: 2,
+                      child: CupertinoScrollbar(
+                        thumbVisibility: true,
+                        controller: scrollController,
+                        child: SizedBox(
+                          // padding: EdgeInsets.onl(horizontal: 16.w),
+                          width: double.infinity,
+                          child: ListView.builder(
                               controller: scrollController,
-                              child: SizedBox(
-                                // padding: EdgeInsets.onl(horizontal: 16.w),
-                                width: double.infinity,
-                                child: ListView.builder(
-                                    controller: scrollController,
-                                    shrinkWrap: true,
-                                    itemCount: listWarehouseName?.length,
-                                    itemBuilder: (context, index) {
-                                      var e = listWarehouseName![index];
+                              shrinkWrap: true,
+                              itemCount: listWarehouseName?.length,
+                              itemBuilder: (context, index) {
+                                var e = listWarehouseName![index];
 
-                                      return Container(
-                                        padding:
-                                            const EdgeInsets.only(right: 16),
-                                        child: Row(
-                                          children: [
-                                            Radio.adaptive(
-                                                visualDensity:
-                                                    const VisualDensity(
-                                                  horizontal: VisualDensity
-                                                      .minimumDensity,
-                                                ),
-                                                materialTapTargetSize:
-                                                    MaterialTapTargetSize
-                                                        .shrinkWrap,
-                                                activeColor:
-                                                    ColorName.mainColor,
-                                                value: e,
-                                                groupValue: groupValue,
-                                                onChanged: (value) {
-                                                  sheetState(() {
-                                                    groupValue = value;
-                                                    // warehouseName = e.name;
-                                                    warehouseId = groupValue.id;
-                                                    warehouseName =
-                                                        groupValue.name;
+                                return Container(
+                                  padding: const EdgeInsets.only(right: 16),
+                                  child: Row(
+                                    children: [
+                                      Radio.adaptive(
+                                          visualDensity: const VisualDensity(
+                                            horizontal:
+                                                VisualDensity.minimumDensity,
+                                          ),
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                          activeColor: ColorName.mainColor,
+                                          value: e,
+                                          groupValue: groupValue,
+                                          onChanged: (value) {
+                                            sheetState(() {
+                                              groupValue = value;
+                                              // warehouseName = e.name;
+                                              warehouseId = groupValue.id;
+                                              warehouseName = groupValue.name;
 
-                                                    log(warehouseId.toString());
-                                                    log(warehouseName);
-                                                  });
-                                                  setState(() {});
-                                                }),
-                                            const SizedBox(width: 8),
-                                            Flexible(
-                                              child: Text(e.name,
-                                                  maxLines: 2,
-                                                  textAlign: TextAlign.left,
-                                                  style: BaseText.blackText14),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }),
+                                              log(warehouseId.toString());
+                                              log(warehouseName);
+                                            });
+                                            setState(() {});
+                                          }),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        child: Text(e.name,
+                                            maxLines: 2,
+                                            textAlign: TextAlign.left,
+                                            style: BaseText.blackText14),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    InkWell(
+                        onTap: () {
+                          if (groupValue != null) {
+                            Future.delayed(const Duration(milliseconds: 250),
+                                () => getOverview(warehouseId: warehouseId));
+                            Future.delayed(const Duration(milliseconds: 650),
+                                () => getUser());
+
+                            Future.delayed(
+                                const Duration(seconds: 2),
+                                () => getStockCountSession(
+                                    userIds: user.id ?? 0,
+                                    warehouseId: warehouseId));
+                          } else {
+                            Navigator.pop(context);
+                            var successSnackBar = SnackBar(
+                                content: Text(
+                                    const ResourceConstants()
+                                        .selectWarehouseFirst,
+                                    style: BaseText.whiteText14));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(successSnackBar);
+                          }
+                          Navigator.of(context).maybePop();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(right: 8),
+                          // height: 40.h,
+                          child: Material(
+                            color: ColorName.mainColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6)),
+                            child: SizedBox(
+                              height: 43,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Center(
+                                    child: Text(
+                                  'Simpan',
+                                  style: BaseText.whiteText14
+                                      .copyWith(fontWeight: BaseText.semiBold),
+                                )),
                               ),
                             ),
                           ),
-                          const Spacer(),
-                          InkWell(
-                              onTap: () {
-                                if (groupValue != null) {
-                                  Future.delayed(
-                                      const Duration(milliseconds: 250),
-                                      () => getOverview(
-                                          warehouseId: warehouseId));
-                                  Future.delayed(
-                                      const Duration(milliseconds: 650),
-                                      () => getUser());
+                        )),
+                    // const SizedBox(height: 16)
 
-                                  Future.delayed(
-                                      const Duration(seconds: 2),
-                                      () => getStockCountSession(
-                                          userIds: user.id ?? 0,
-                                          warehouseId: warehouseId));
-                                } else {
-                                  Navigator.pop(context);
-                                  var successSnackBar = SnackBar(
-                                      content: Text(
-                                          const ResourceConstants()
-                                              .selectWarehouseFirst,
-                                          style: BaseText.whiteText14));
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(successSnackBar);
-                                }
-                                Navigator.of(context).maybePop();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.only(right: 8),
-                                // height: 40.h,
-                                child: Material(
-                                  color: ColorName.mainColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6)),
-                                  child: SizedBox(
-                                    height: 43,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      child: Center(
-                                          child: Text(
-                                        'Simpan',
-                                        style: BaseText.whiteText14.copyWith(
-                                            fontWeight: BaseText.semiBold),
-                                      )),
-                                    ),
-                                  ),
-                                ),
-                              )),
-                          // const SizedBox(height: 16)
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             );
           });

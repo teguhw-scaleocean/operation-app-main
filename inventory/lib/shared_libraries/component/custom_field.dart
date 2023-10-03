@@ -41,27 +41,22 @@ Widget buildCustomFieldDetail({required String title, required String value}) {
   );
 }
 
-Widget buildFieldIconDetail(
-    {required Icon icon, required String title, required String value}) {
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.start,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(title,
-          style: BaseText.greyText14.copyWith(
-              fontWeight: BaseText.medium, color: ColorName.borderNewColor)),
-      const SizedBox(height: 4),
-      Row(
-        children: [
-          icon,
-          const SizedBox(width: 4),
-          Text(value,
-              style:
-                  BaseText.blackText16.copyWith(fontWeight: BaseText.semiBold)),
-          const SizedBox(height: 16),
-        ],
-      ),
-    ],
+Widget buildFieldIconDetail({required String title, required String value}) {
+  return Flexible(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: BaseText.greyText14.copyWith(
+                fontWeight: BaseText.medium, color: ColorName.borderNewColor)),
+        const SizedBox(height: 4),
+        Text(value,
+            style:
+                BaseText.blackText16.copyWith(fontWeight: BaseText.semiBold)),
+        const SizedBox(height: 16),
+      ],
+    ),
   );
 }
 
