@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:inventory/domains/home/data/datasource/remote/home_remote_datasource.dart';
+import 'package:inventory/domains/home/data/model/request/warehouse_request_dto.dart';
 import 'package:inventory/domains/home/data/model/response/warehouse_response_dto.dart';
 import 'package:inventory/domains/home/data/repository/home_repostiroy_impl.dart';
 import 'package:inventory/domains/home/domain/repository/home_repository.dart';
@@ -32,23 +33,37 @@ void testProductRepositoryTest() {
     ''', () async {
       token =
           "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
+      WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+          jsonrpc: "2.0",
+          params: Params(
+              token: token,
+              model: "stock.warehouse",
+              method: "search_read",
+              args: [
+                [
+                  ["company_id", "=", 1]
+                ]
+              ],
+              context: Context()));
 
-      when(() => mockHomeRemoteDataSource.getWarehouse(token: token))
+      when(() => mockHomeRemoteDataSource.getWarehouse(
+              warehouseRequestDto: warehouseRequestDto))
           .thenAnswer((_) async => Future.value(warehouseResponseDtoDummy));
 
       // WHEN
-      final result = await homeRepository.getWarehouse(token: token);
+      final result = await homeRepository.getWarehouse(
+          warehouseRequestDto: warehouseRequestDto);
 
       // THEN
       expect(result, isA<Right>());
       expect(
-          result.getOrElse(
-              () => WarehouseResponseDto(jsonrpc: '', result: <Result>[])),
+          result.getOrElse(() =>
+              const WarehouseResponseDto(jsonrpc: '', result: <Result>[])),
           isA<WarehouseResponseDto>());
       expect(
           result
-              .getOrElse(
-                  () => WarehouseResponseDto(jsonrpc: '', result: <Result>[]))
+              .getOrElse(() =>
+                  const WarehouseResponseDto(jsonrpc: '', result: <Result>[]))
               .result
               .first
               .id,
@@ -62,12 +77,26 @@ void testProductRepositoryTest() {
 ''', () async {
       token =
           "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
+      WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+          jsonrpc: "2.0",
+          params: Params(
+              token: token,
+              model: "stock.warehouse",
+              method: "search_read",
+              args: [
+                [
+                  ["company_id", "=", 1]
+                ]
+              ],
+              context: Context()));
 
-      when(() => mockHomeRemoteDataSource.getWarehouse(token: token))
+      when(() => mockHomeRemoteDataSource.getWarehouse(
+              warehouseRequestDto: warehouseRequestDto))
           .thenThrow(DioError(requestOptions: RequestOptions(path: '')));
 
       // WHEN
-      final result = await homeRepository.getWarehouse(token: token);
+      final result = await homeRepository.getWarehouse(
+          warehouseRequestDto: warehouseRequestDto);
 
       // THEN
       expect(result, isA<Left>());

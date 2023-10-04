@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
+import 'package:inventory/shared_libraries/utils/pref_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../core/network/env/env.dart';
@@ -18,12 +21,13 @@ class UserCubit extends Cubit<UserState> {
           // operationState: ViewData.initial(),
         ));
 
-  getUser() async {
+  var companyId;
+
+  getUser({required String emailAddress}) async {
     emit(UserState(userState: ViewData.loading()));
 
-    String token =
-        sharedPreferences.getString(AppConstants.cachedKey.tokenKey) ?? '';
-    String emailAddress = sharedPreferences.getString(KeyHelper.username) ?? '';
+    String token = sharedPreferences.getString(KeyHelper.token) ?? '';
+    // String emailAddress = sharedPreferences.getString(KeyHelper.username) ?? '';
 
     UserRequestDto params =
         UserRequestDto(token: token, emailAddress: emailAddress);
@@ -32,11 +36,20 @@ class UserCubit extends Cubit<UserState> {
     return result.fold(
         (failure) => emit(UserState(
             userState: ViewData.error(
-                message: failure.errorMessage, failure: failure))),
-        (data) => emit(
-              UserState(
-                userState: ViewData.loaded(data: data),
-              ),
-            ));
+                message: failure.errorMessage,
+                failure: failure))), (data) async {
+      final user = data.result.first;
+      companyId = user.companyId?.first;
+
+      log("companyId === ${companyId.toString()}");
+
+      await PreferenceHelper.saveUserResModel(sharedPreferences, companyId);
+
+      emit(
+        UserState(
+          userState: ViewData.loaded(data: data),
+        ),
+      );
+    });
   }
 }

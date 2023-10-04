@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:inventory/domains/home/data/model/request/warehouse_request_dto.dart';
 import 'package:inventory/domains/home/data/model/response/warehouse_response_dto.dart';
 import 'package:inventory/domains/home/domain/repository/home_repository.dart';
 import 'package:inventory/domains/home/domain/usecase/get_warehouse_usecase.dart';
@@ -30,24 +31,37 @@ void testGetWarehouseUseCase() {
     ''', () async {
       String token =
           "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
+      WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+          jsonrpc: "2.0",
+          params: Params(
+              token: token,
+              model: "stock.warehouse",
+              method: "search_read",
+              args: [
+                [
+                  ["company_id", "=", 1]
+                ]
+              ],
+              context: Context()));
 
       /// GIVEN
-      when(() => mockHomeRepository.getWarehouse(token: token))
+      when(() => mockHomeRepository.getWarehouse(
+              warehouseRequestDto: warehouseRequestDto))
           .thenAnswer((_) async => Right(warehouseResponseDtoDummy));
 
       /// WHEN
-      final result = await getWarehouseUsecase.call(token);
+      final result = await getWarehouseUsecase.call(warehouseRequestDto);
 
       /// THEN
       expect(result, isA<Right>());
       expect(
-          result.getOrElse(
-              () => WarehouseResponseDto(jsonrpc: '', result: <Result>[])),
+          result.getOrElse(() =>
+              const WarehouseResponseDto(jsonrpc: '', result: <Result>[])),
           isA<WarehouseResponseDto>());
       expect(
           result
-              .getOrElse(
-                  () => WarehouseResponseDto(jsonrpc: '', result: <Result>[]))
+              .getOrElse(() =>
+                  const WarehouseResponseDto(jsonrpc: '', result: <Result>[]))
               .result
               .first
               .id,
@@ -61,13 +75,27 @@ void testGetWarehouseUseCase() {
     ''', () async {
       String token =
           "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
+      WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+          jsonrpc: "2.0",
+          params: Params(
+              token: token,
+              model: "stock.warehouse",
+              method: "search_read",
+              args: [
+                [
+                  ["company_id", "=", 1]
+                ]
+              ],
+              context: Context()));
 
       /// GIVEN
-      when(() => mockHomeRepository.getWarehouse(token: token)).thenAnswer(
-          (_) async => const Left(FailureResponse(errorMessage: '')));
+      when(() => mockHomeRepository.getWarehouse(
+              warehouseRequestDto: warehouseRequestDto))
+          .thenAnswer(
+              (_) async => const Left(FailureResponse(errorMessage: '')));
 
       /// WHEN
-      final result = await getWarehouseUsecase.call(token);
+      final result = await getWarehouseUsecase.call(warehouseRequestDto);
 
       /// THEN
       expect(result, isA<Left>());

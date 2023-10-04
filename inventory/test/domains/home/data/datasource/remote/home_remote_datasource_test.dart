@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:inventory/domains/home/data/datasource/remote/home_remote_datasource.dart';
+import 'package:inventory/domains/home/data/model/request/warehouse_request_dto.dart';
 import 'package:inventory/shared_libraries/common/error/failure_response.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../../helper/json_reader.dart';
-
 
 void main() => testHomeRemoteDataSourceTest();
 
@@ -43,7 +43,20 @@ void testHomeRemoteDataSourceTest() {
 
     String token =
         "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
-    final result = await homeRemoteDatasource.getWarehouse(token: token);
+    WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+        jsonrpc: "2.0",
+        params: Params(
+            token: token,
+            model: "stock.warehouse",
+            method: "search_read",
+            args: [
+              [
+                ["company_id", "=", 1]
+              ]
+            ],
+            context: Context()));
+    final result = await homeRemoteDatasource.getWarehouse(
+        warehouseRequestDto: warehouseRequestDto);
 
     expect(result.result.length, 1);
   });
@@ -59,11 +72,23 @@ void testHomeRemoteDataSourceTest() {
         const FailureResponse(errorMessage: 'Internal Server Error'));
 
     token = "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
-    // final result = await homeRemoteDatasource.getWarehouse(token: token);
+    WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+        jsonrpc: "2.0",
+        params: Params(
+            token: token,
+            model: "stock.warehouse",
+            method: "search_read",
+            args: [
+              [
+                ["company_id", "=", 1]
+              ]
+            ],
+            context: Context()));
 
     expect(
         // WHEN
-        () => homeRemoteDatasource.getWarehouse(token: token),
+        () => homeRemoteDatasource.getWarehouse(
+            warehouseRequestDto: warehouseRequestDto),
 
         // THEN
         throwsException);

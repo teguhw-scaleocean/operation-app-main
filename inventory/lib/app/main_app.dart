@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:inventory/core/navigation/argument/home_argument.dart';
 import 'package:inventory/core/navigation/argument/stock_count_session_line.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -84,11 +85,21 @@ class MainApp extends StatelessWidget {
                     ));
           case AppRoutes.signIn:
             return MaterialPageRoute(
-                builder: (_) => BlocProvider(
-                      create: (context) => SignInBloc(
-                        signInUseCase: sl(),
-                        cachedTokenUsecase: sl(),
-                      ),
+                builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                          create: (context) => SignInBloc(
+                            signInUseCase: sl(),
+                            cachedTokenUsecase: sl(),
+                          ),
+                        ),
+                        BlocProvider<UserCubit>(
+                          create: (context) => UserCubit(
+                            getUserUsecase: sl(),
+                            sharedPreferences: sl(),
+                          ),
+                        ),
+                      ],
                       child: AnnotatedRegion<SystemUiOverlayStyle>(
                           value: const SystemUiOverlayStyle(
                             statusBarIconBrightness: Brightness.dark,

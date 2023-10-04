@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:inventory/domains/home/data/model/request/warehouse_request_dto.dart';
 
 import '../../../../shared_libraries/common/error/failure_response.dart';
 import '../../domain/repository/home_repository.dart';
 import '../datasource/remote/home_remote_datasource.dart';
 import '../model/request/operation_request_dto.dart';
 import '../model/request/user_request_dto.dart';
+import '../model/request/warehouse_request_dto.dart';
 import '../model/response/operation_response_dto.dart';
 import '../model/response/overview_response_dto.dart';
 import '../model/response/stock_opname_response_dto.dart';
@@ -19,9 +19,10 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<Either<FailureResponse, WarehouseResponseDto>> getWarehouse(
-      {required String token}) async {
+      {required WarehouseRequestDto warehouseRequestDto}) async {
     try {
-      final response = await homeRemoteDatasource.getWarehouse(token: token);
+      final response = await homeRemoteDatasource.getWarehouse(
+          warehouseRequestDto: warehouseRequestDto);
 
       return Right(response);
     } catch (e) {

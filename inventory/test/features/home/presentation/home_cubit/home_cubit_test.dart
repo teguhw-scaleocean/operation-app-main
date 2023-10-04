@@ -1,6 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:inventory/domains/home/data/model/request/warehouse_request_dto.dart';
 import 'package:inventory/domains/home/domain/usecase/get_overview_usecase.dart';
 import 'package:inventory/domains/home/domain/usecase/get_user_usecase.dart';
 import 'package:inventory/domains/home/domain/usecase/get_warehouse_usecase.dart';
@@ -33,7 +34,6 @@ void testWarehouseCubit() {
     mockOverviewUseCase = MockGetOverviewUseCase();
     mockGetUserUseCase = MockGetUserUseCase();
     mockSharedPreferences = MockSharedPreference();
-    
   });
 
   group('Warehouse Cubit', () {
@@ -54,9 +54,21 @@ void testWarehouseCubit() {
       build: () {
         token =
             "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
+        WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+            jsonrpc: "2.0",
+            params: Params(
+                token: token,
+                model: "stock.warehouse",
+                method: "search_read",
+                args: [
+                  [
+                    ["company_id", "=", 1]
+                  ]
+                ],
+                context: Context()));
 
         when(
-          () => mockGetWarehouseUseCase.call(token),
+          () => mockGetWarehouseUseCase.call(warehouseRequestDto),
         ).thenAnswer((_) async => Right(warehouseResponseDtoDummy));
 
         return HomeCubit(
@@ -66,7 +78,7 @@ void testWarehouseCubit() {
           sharedPreferences: mockSharedPreferences,
         );
       },
-      act: (HomeCubit cubit) => cubit.getListWarehouse(),
+      act: (HomeCubit cubit) => cubit.getListWarehouse(companyId: 1),
       expect: () => [
         HomeState(
           warehouseState: ViewData.loading(),
@@ -86,16 +98,29 @@ void testWarehouseCubit() {
         build: () {
           String token =
               "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
+          WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+              jsonrpc: "2.0",
+              params: Params(
+                  token: token,
+                  model: "stock.warehouse",
+                  method: "search_read",
+                  args: [
+                    [
+                      ["company_id", "=", 1]
+                    ]
+                  ],
+                  context: Context()));
 
-          when(() => mockGetWarehouseUseCase.call(token)).thenAnswer(
-              (_) async => const Left(FailureResponse(errorMessage: '')));
+          when(() => mockGetWarehouseUseCase.call(warehouseRequestDto))
+              .thenAnswer(
+                  (_) async => const Left(FailureResponse(errorMessage: '')));
           return HomeCubit(
               getWarehouseUsecase: mockGetWarehouseUseCase,
               getOverviewUsecase: mockOverviewUseCase,
               getUserUsecase: mockGetUserUseCase,
               sharedPreferences: mockSharedPreferences);
         },
-        act: (cubit) => cubit.getListWarehouse(),
+        act: (cubit) => cubit.getListWarehouse(companyId: 1),
         expect: () => [
               HomeState(
                   warehouseState: ViewData.loading(message: 'Loading....'),

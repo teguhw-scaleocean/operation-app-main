@@ -14,7 +14,7 @@ abstract class HomeRepository {
   const HomeRepository();
 
   Future<Either<FailureResponse, WarehouseResponseDto>> getWarehouse(
-      {required String token});
+      {required WarehouseRequestDto warehouseRequestDto});
 
   Future<Either<FailureResponse, OverviewResponseDto>> getOverview(
       {required OperationRequestDto operationRequestDto});

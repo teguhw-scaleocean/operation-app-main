@@ -13,7 +13,8 @@ import '../../model/response/user_response_dto.dart';
 import '../../model/response/warehouse_response_dto.dart';
 
 abstract class HomeRemoteDatasource {
-  Future<WarehouseResponseDto> getWarehouse({required String token});
+  Future<WarehouseResponseDto> getWarehouse(
+      {required WarehouseRequestDto warehouseRequestDto});
 
   Future<OverviewResponseDto> getOverview(
       {required OperationRequestDto operationRequestDto});
@@ -49,16 +50,8 @@ class HomeRemoteDatasourceImpl implements HomeRemoteDatasource {
   HomeRemoteDatasourceImpl({required this.dio});
 
   @override
-  Future<WarehouseResponseDto> getWarehouse({required String token}) async {
-    WarehouseRequestDto warehouseDto = WarehouseRequestDto(
-        jsonrpc: "2.0",
-        params: Params(
-            token: token,
-            model: "stock.warehouse",
-            method: "search_read",
-            args: [],
-            context: Context()));
-
+  Future<WarehouseResponseDto> getWarehouse(
+      {required WarehouseRequestDto warehouseRequestDto}) async {
     try {
       final response = await dio.post(
         AppConstants.appApi.warehouse,
@@ -68,7 +61,7 @@ class HomeRemoteDatasourceImpl implements HomeRemoteDatasource {
         //   // followRedirects: true,
         //   // contentType: 'application/json',
         // ),
-        data: warehouseDto.toJson(),
+        data: warehouseRequestDto.toJson(),
       );
 
       return WarehouseResponseDto.fromJson(response.data);
@@ -275,7 +268,8 @@ class HomeRemoteDatasourceImpl implements HomeRemoteDatasource {
                 "email",
                 "display_name",
                 "contact_address_complete",
-                "phone_sanitized"
+                "phone_sanitized",
+                "company_id"
               ]
             ],
             context: Context()));

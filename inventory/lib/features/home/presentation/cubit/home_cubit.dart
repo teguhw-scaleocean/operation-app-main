@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/network/env/env.dart';
 import '../../../../domains/home/data/model/request/operation_request_dto.dart';
 import '../../../../domains/home/data/model/request/user_request_dto.dart';
+import '../../../../domains/home/data/model/request/warehouse_request_dto.dart';
 import '../../../../domains/home/data/model/response/overview_response_dto.dart';
 import '../../../../domains/home/data/model/response/user_response_dto.dart';
 import '../../../../domains/home/data/model/response/warehouse_response_dto.dart';
@@ -34,7 +35,7 @@ class HomeCubit extends Cubit<HomeState> {
           // operationState: ViewData.initial(),
         ));
 
-  getListWarehouse() async {
+  getListWarehouse({required int companyId}) async {
     emit(
       HomeState(
         warehouseState: ViewData.loading(),
@@ -43,10 +44,22 @@ class HomeCubit extends Cubit<HomeState> {
       ),
     );
 
-    String params =
-        "5fcc52f44fb5634d1047f176762bbf922084dc010ae77d9f590dbfbfc03ebb5c";
+    String token =
+        sharedPreferences.getString(AppConstants.cachedKey.tokenKey) ?? '';
+    WarehouseRequestDto warehouseRequestDto = WarehouseRequestDto(
+        jsonrpc: "2.0",
+        params: Params(
+            token: token,
+            model: "stock.warehouse",
+            method: "search_read",
+            args: [
+              [
+                ["company_id", "=", companyId]
+              ]
+            ],
+            context: Context()));
 
-    var result = await getWarehouseUsecase.call(params);
+    var result = await getWarehouseUsecase.call(warehouseRequestDto);
     return result.fold(
         (failure) => emit(HomeState(
             warehouseState:

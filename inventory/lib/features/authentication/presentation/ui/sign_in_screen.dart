@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:inventory/features/home/presentation/cubit/user_cubit/user_cubit.dart';
 import 'package:inventory/shared_libraries/utils/validate_field_helper.dart';
 
 import '../../../../core/navigation/routes.dart';
@@ -39,6 +40,10 @@ class SignInScreen extends StatelessWidget {
   /// Database name to selected Database
   String _database = "";
 
+  getUserDetail(BuildContext context, String emailAddress) async {
+    context.read<UserCubit>().getUser(emailAddress: emailAddress);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -50,6 +55,9 @@ class SignInScreen extends StatelessWidget {
           final status = state.signInDataState.status;
 
           if (status.isHasData) {
+            Future.delayed(const Duration(milliseconds: 50),
+                () => getUserDetail(context, emailController.text));
+
             Future.delayed(const Duration(seconds: 1), () {
               var successSnackBar = SnackBar(
                   content: Text('Successfully logged in',

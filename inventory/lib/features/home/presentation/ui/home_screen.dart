@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:inventory/core/navigation/argument/home_argument.dart';
 import 'package:inventory/core/navigation/argument/stock_count_session.dart';
+import 'package:inventory/core/network/env/env.dart';
 import 'package:inventory/features/home/presentation/cubit/stock_opname_cubit/stock_count_session_state.dart';
 import 'package:inventory/shared_libraries/common/state/view_data_state.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
@@ -27,6 +29,7 @@ import '../../../../shared_libraries/component/custom_field_icon.dart';
 import '../../../../shared_libraries/component/general_dialog.dart';
 import '../../../../shared_libraries/component/loading_overlay.dart';
 import '../../../../shared_libraries/component/loading_widget.dart';
+import '../../../../shared_libraries/utils/key_helper.dart';
 import '../../../../shared_libraries/utils/pref_helper.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/stock_opname_cubit/stock_count_session_cubit.dart';
@@ -53,10 +56,12 @@ class _HomeScreenState extends State<HomeScreen> {
   late Function sheetSetState;
   late Function sheetState;
   late Timer _timer;
+  late Timer _timerToGetUser;
   ResultUser user = ResultUser();
   var endTime;
   var dateOutput;
   var timeUnformatted;
+  var companyId;
   bool isFinishedTime = false;
   bool isToday = false;
 
@@ -105,7 +110,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    _timer = Timer(const Duration(milliseconds: 50), () => getWarehouse());
+    int companyId = sharedPreferences.getInt(KeyHelper.companyId) ?? 00;
+
+    _timer = Timer(const Duration(milliseconds: 50),
+        () => getWarehouse(companyId: companyId));
 
     // if (isFinishedTime) {
     //   _buildReminderStockOpname(context);
@@ -114,13 +122,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _timerToGetUser.cancel();
     _timer.cancel();
 
     super.dispose();
   }
 
-  Future<void> getWarehouse() async {
-    context.read<HomeCubit>().getListWarehouse();
+  Future<void> getWarehouse({required int companyId}) async {
+    context.read<HomeCubit>().getListWarehouse(companyId: companyId);
   }
 
   Future<void> getOverview({required int warehouseId}) async {
@@ -128,7 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getUser() async {
-    context.read<UserCubit>().getUser();
+    final email = sharedPreferences.getString(KeyHelper.username) ?? '';
+    context.read<UserCubit>().getUser(emailAddress: email);
   }
 
   Future<void> getStockCountSession(
@@ -303,7 +313,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         listUSers =
                                             state.userState.data!.result;
                                         user = listUSers.first;
-                                        log('user: ${user.toJson().toString()}');
+                                        companyId = user.companyId?.first;
+                                        log('user companyId: ${companyId.toString()}');
+
                                         // var successSnackBar = SnackBar(
                                         //     content: Text('Success User',
                                         //         style: BaseText.whiteText14));
@@ -430,14 +442,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                               DateTime.parse(date);
                                           final now = DateTime.now();
 
-                                          final newDay =
-                                              scheduleDate.day - now.day;
-                                          dateOutput = Duration(days: newDay
-                                                  // hours: hour,
-                                                  // minutes: minute,
-                                                  // seconds: second,
-                                                  )
-                                              .inHours;
+                                          // final newDay =
+                                          //     scheduleDate.day - now.day;
+                                          final differenceYear =
+                                              now.year - scheduleDate.year;
+                                          final differenceMonth =
+                                              now.month - scheduleDate.month;
+                                          final differenceDay =
+                                              now.day - scheduleDate.day;
+                                          final resultDifferenceDay = DateTime(
+                                                  differenceYear,
+                                                  differenceMonth,
+                                                  differenceDay)
+                                              .day;
+
+                                          log("resultDifferenceDay: ${resultDifferenceDay.toString()}");
+                                          dateOutput =
+                                              Duration(days: resultDifferenceDay
+                                                      // hours: hour,
+                                                      // minutes: minute,
+                                                      // seconds: second,
+                                                      )
+                                                  .inHours;
                                           log(dateOutput.toString());
                                           log("endTime: ${endTime.toString()}");
 
@@ -760,7 +786,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<dynamic> _buildSelectWarehouse(BuildContext context) {
     return showModalBottomSheet(
-        isScrollControlled: false,
+        useRootNavigator: true,
+        isScrollControlled: true,
         showDragHandle: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -771,141 +798,133 @@ class _HomeScreenState extends State<HomeScreen> {
           return StatefulBuilder(builder: (context, sheetStateNew) {
             sheetState = sheetStateNew;
 
-            return SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child: Container(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                // height: mediaQuery.height / 1.4,
-                width: double.infinity,
-                child: ListView(
-                  shrinkWrap: true,
-                  // mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Pilih warehouse',
-                          style: BaseText.mainTextStyle14
-                              .copyWith(fontWeight: BaseText.semiBold),
-                        ),
-                        // const Spacer(flex: 2),
-                        IconButton(
-                          onPressed: () => Navigator.of(context).maybePop(),
-                          icon: const Icon(Icons.close,
-                              color: ColorName.mainColor, size: 16),
-                        ),
-                      ],
-                    ),
-                    Flexible(
-                      // flex: 2,
-                      child: CupertinoScrollbar(
-                        thumbVisibility: true,
-                        controller: scrollController,
-                        child: SizedBox(
-                          // padding: EdgeInsets.onl(horizontal: 16.w),
-                          width: double.infinity,
-                          child: ListView.builder(
-                              controller: scrollController,
-                              shrinkWrap: true,
-                              itemCount: listWarehouseName?.length,
-                              itemBuilder: (context, index) {
-                                var e = listWarehouseName![index];
-
-                                return Container(
-                                  padding: const EdgeInsets.only(right: 16),
-                                  child: Row(
-                                    children: [
-                                      Radio.adaptive(
-                                          visualDensity: const VisualDensity(
-                                            horizontal:
-                                                VisualDensity.minimumDensity,
-                                          ),
-                                          materialTapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                          activeColor: ColorName.mainColor,
-                                          value: e,
-                                          groupValue: groupValue,
-                                          onChanged: (value) {
-                                            sheetState(() {
-                                              groupValue = value;
-                                              // warehouseName = e.name;
-                                              warehouseId = groupValue.id;
-                                              warehouseName = groupValue.name;
-
-                                              log(warehouseId.toString());
-                                              log(warehouseName);
-                                            });
-                                            setState(() {});
-                                          }),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(e.name,
-                                            maxLines: 2,
-                                            textAlign: TextAlign.left,
-                                            style: BaseText.blackText14),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                        ),
+            return Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: ListView(
+                shrinkWrap: true,
+                // mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Pilih warehouse',
+                        style: BaseText.mainTextStyle14
+                            .copyWith(fontWeight: BaseText.semiBold),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      // const Spacer(flex: 2),
+                      IconButton(
+                        onPressed: () => Navigator.of(context).maybePop(),
+                        icon: const Icon(Icons.close,
+                            color: ColorName.mainColor, size: 16),
+                      ),
+                    ],
+                  ),
+                  CupertinoScrollbar(
+                    thumbVisibility: true,
+                    controller: scrollController,
+                    child: SizedBox(
+                      // padding: EdgeInsets.onl(horizontal: 16.w),
+                      width: double.infinity,
+                      child: ListView.builder(
+                          controller: scrollController,
+                          primary: false,
+                          shrinkWrap: true,
+                          itemCount: listWarehouseName?.length,
+                          itemBuilder: (context, index) {
+                            var e = listWarehouseName![index];
 
-                    InkWell(
-                        onTap: () {
-                          if (groupValue != null) {
-                            Future.delayed(const Duration(milliseconds: 250),
-                                () => getOverview(warehouseId: warehouseId));
-                            Future.delayed(const Duration(milliseconds: 650),
-                                () => getUser());
+                            return Container(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: Row(
+                                children: [
+                                  Radio.adaptive(
+                                      visualDensity: const VisualDensity(
+                                        horizontal:
+                                            VisualDensity.minimumDensity,
+                                      ),
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      activeColor: ColorName.mainColor,
+                                      value: e,
+                                      groupValue: groupValue,
+                                      onChanged: (value) {
+                                        sheetState(() {
+                                          groupValue = value;
+                                          // warehouseName = e.name;
+                                          warehouseId = groupValue.id;
+                                          warehouseName = groupValue.name;
 
-                            Future.delayed(
-                                const Duration(seconds: 2),
-                                () => getStockCountSession(
-                                    userIds: user.id ?? 0,
-                                    warehouseId: warehouseId));
-                          } else {
-                            Navigator.pop(context);
-                            var successSnackBar = SnackBar(
-                                content: Text(
-                                    const ResourceConstants()
-                                        .selectWarehouseFirst,
-                                    style: BaseText.whiteText14));
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(successSnackBar);
-                          }
-                          Navigator.of(context).maybePop();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(right: 8),
-                          // height: 40.h,
-                          child: Material(
-                            color: ColorName.mainColor,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6)),
-                            child: SizedBox(
-                              height: 43,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                child: Center(
-                                    child: Text(
-                                  'Simpan',
-                                  style: BaseText.whiteText14
-                                      .copyWith(fontWeight: BaseText.semiBold),
-                                )),
+                                          log(warehouseId.toString());
+                                          log(warehouseName);
+                                        });
+                                        setState(() {});
+                                      }),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(e.name,
+                                        maxLines: 2,
+                                        textAlign: TextAlign.left,
+                                        style: BaseText.blackText14),
+                                  ),
+                                ],
                               ),
+                            );
+                          }),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  InkWell(
+                      onTap: () {
+                        if (groupValue != null) {
+                          Future.delayed(const Duration(milliseconds: 250),
+                              () => getOverview(warehouseId: warehouseId));
+                          Future.delayed(const Duration(milliseconds: 650),
+                              () => getUser());
+
+                          Future.delayed(
+                              const Duration(seconds: 2),
+                              () => getStockCountSession(
+                                  userIds: user.id ?? 0,
+                                  warehouseId: warehouseId));
+                        } else {
+                          Navigator.pop(context);
+                          var successSnackBar = SnackBar(
+                              content: Text(
+                                  const ResourceConstants()
+                                      .selectWarehouseFirst,
+                                  style: BaseText.whiteText14));
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(successSnackBar);
+                        }
+                        Navigator.of(context).maybePop();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.only(right: 8),
+                        // height: 40.h,
+                        child: Material(
+                          color: ColorName.mainColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                          child: SizedBox(
+                            height: 43,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Center(
+                                  child: Text(
+                                'Simpan',
+                                style: BaseText.whiteText14
+                                    .copyWith(fontWeight: BaseText.semiBold),
+                              )),
                             ),
                           ),
-                        )),
-                    // const SizedBox(height: 16)
+                        ),
+                      )),
+                  // const SizedBox(height: 16)
 
-                    const SizedBox(height: 24),
-                  ],
-                ),
+                  const SizedBox(height: 24),
+                ],
               ),
             );
           });

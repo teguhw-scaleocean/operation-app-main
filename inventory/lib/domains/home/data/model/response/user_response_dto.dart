@@ -31,15 +31,16 @@ class ResultUser {
   String? displayName;
   String? contactAddressComplete;
   String? phoneSanitized;
+  List<dynamic>? companyId;
 
-  ResultUser({
-    this.id,
-    this.name,
-    this.email,
-    this.displayName,
-    this.contactAddressComplete,
-    this.phoneSanitized,
-  });
+  ResultUser(
+      {this.id,
+      this.name,
+      this.email,
+      this.displayName,
+      this.contactAddressComplete,
+      this.phoneSanitized,
+      this.companyId});
 
   factory ResultUser.fromJson(Map<String, dynamic> json) => ResultUser(
         id: json["id"],
@@ -48,6 +49,9 @@ class ResultUser {
         displayName: json["display_name"],
         contactAddressComplete: json["contact_address_complete"],
         phoneSanitized: json["phone_sanitized"],
+        companyId: json["company_id"] == null
+            ? []
+            : List<dynamic>.from(json["company_id"]!.map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
@@ -57,5 +61,8 @@ class ResultUser {
         "display_name": displayName,
         "contact_address_complete": contactAddressComplete,
         "phone_sanitized": phoneSanitized,
+        "company_id": companyId == null
+            ? []
+            : List<dynamic>.from(companyId!.map((x) => x)),
       };
 }

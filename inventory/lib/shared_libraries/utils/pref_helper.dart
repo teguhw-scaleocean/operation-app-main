@@ -13,9 +13,16 @@ class PreferenceHelper {
     log("$username, $token");
   }
 
+  static Future<void> saveUserResModel(
+      SharedPreferences preferences, int companyId) async {
+    await preferences.setInt(KeyHelper.companyId, companyId);
+    log("saveUserResModel companyId: $companyId");
+  }
+
   static Future<void> clearUserCredential(SharedPreferences preferences) async {
     await preferences.remove(KeyHelper.username);
     await preferences.remove(KeyHelper.token);
+    await preferences.remove(KeyHelper.companyId);
     await preferences.remove(AppConstants.cachedKey.tokenKey);
     log('Success Remove');
   }
