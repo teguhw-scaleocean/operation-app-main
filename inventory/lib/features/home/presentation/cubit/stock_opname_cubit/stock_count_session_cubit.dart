@@ -28,17 +28,16 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
         jsonrpc: "2.0",
         params: Params(
           token: token,
-          model: "stock.count.session",
-          method: "get_inventory_count_session",
+          model: "scaleocean.inventory.count.session",
+          method: "search_read",
           args: [
-            [],
             [
               ["warehouse_id", "=", warehouseId],
-              ["user_ids", "in", userId]
+              ["user_ids", "=", userId]
             ]
           ],
           context: Context(),
-          service: "object",
+          // service: "object",
         ));
 
     var result = await getStockCountSessionUsecase.call(params);

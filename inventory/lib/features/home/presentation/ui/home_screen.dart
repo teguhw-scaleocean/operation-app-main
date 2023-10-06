@@ -430,31 +430,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                         if (listStockOpname.isNotEmpty) {
                                           stockOpname = listStockOpname.first;
                                           timeUnformatted =
-                                              stockOpname['date_create']
+                                              stockOpname['session_start_date']
                                                   .toString()
                                                   .substring(10);
                                           log("timeUnformatted: ${timeUnformatted.toString()}");
 
-                                          String date = "";
-                                          date = stockOpname['date_create'];
+                                          final date =
+                                              stockOpname['session_start_date'];
 
                                           DateTime scheduleDate =
                                               DateTime.parse(date);
-                                          final now = DateTime.now();
+                                          log("scheduleDate: ${scheduleDate.toString()}");
 
-                                          // final newDay =
-                                          //     scheduleDate.day - now.day;
-                                          final differenceYear =
-                                              now.year - scheduleDate.year;
-                                          final differenceMonth =
-                                              now.month - scheduleDate.month;
-                                          final differenceDay =
-                                              now.day - scheduleDate.day;
-                                          final resultDifferenceDay = DateTime(
-                                                  differenceYear,
-                                                  differenceMonth,
-                                                  differenceDay)
-                                              .day;
+                                          final dateTimeNow = DateTime.now();
+                                          final resultDifferenceDay =
+                                              scheduleDate
+                                                  .difference(dateTimeNow)
+                                                  .inDays;
 
                                           log("resultDifferenceDay: ${resultDifferenceDay.toString()}");
                                           dateOutput =
@@ -464,8 +456,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       // seconds: second,
                                                       )
                                                   .inHours;
-                                          log(dateOutput.toString());
-                                          log("endTime: ${endTime.toString()}");
+                                          log("dateOutput: ${dateOutput.toString()}");
+                                          // log("endTime: ${endTime.toString()}");
 
                                           if (dateOutput
                                               .toString()
@@ -771,6 +763,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _onHomeRefresh() async {
+    warehouseId = (warehouseId == 0) ? warehouseInitId : warehouseId;
     Future.delayed(
         const Duration(milliseconds: 50),
         () => getOverview(warehouseId: warehouseId).then((value) async {
@@ -1048,7 +1041,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Text(
                                     'Pemberitahuan Stock Opname',
-                                    style: BaseText.mainTextStyle14.copyWith(
+                                    style: BaseText.mainTextStyle16.copyWith(
                                         fontWeight: BaseText.semiBold),
                                   ),
                                   IconButton(
@@ -1060,48 +1053,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                               const SizedBox(height: 5),
-                              buildCustomField(
+                              buildCustomFieldDetail(
                                   title: 'Warehouse',
                                   // value: "itemStockScheduled['product_id'][1]",
                                   value: (stockOpname == null ||
-                                          stockOpname['warehouse_name'] ==
-                                              false)
+                                          stockOpname['warehouse_id'] == false)
                                       ? ''
-                                      : stockOpname['warehouse_name']),
-                              buildCustomField(
+                                      : stockOpname['warehouse_id'][1]),
+                              buildCustomFieldDetail(
                                   title: 'Location Stock',
                                   // value: "itemStockScheduled['location_id'][1]",
                                   value: (stockOpname == null ||
-                                          stockOpname['location_name'] == false)
+                                          stockOpname['location_id'] == false)
                                       ? ''
-                                      : stockOpname['location_name']),
+                                      : stockOpname['location_id'][1]),
                               //  buildCustomField(title: 'Address', value: stockOpname[''])   ,
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  buildFieldIcon(
-                                      icon: const Icon(Icons.date_range),
+                                  buildFieldIconDetail(
                                       title: 'Tanggal',
                                       // value: "itemStockScheduled['date']"
                                       value: (stockOpname == null ||
-                                              stockOpname['date'] == false)
+                                              stockOpname[
+                                                      'session_start_date'] ==
+                                                  false)
                                           ? ''
                                           : DateFormat(
                                                   "EEEE, d MMMM yyyy", "id_ID")
                                               .format(DateTime.parse(
-                                                  stockOpname['date_create']
+                                                  stockOpname[
+                                                          'session_start_date']
                                                       .substring(0, 10)))),
-                                  const Spacer(),
-                                  buildFieldIcon(
-                                      icon:
-                                          const Icon(Icons.access_time_rounded),
-                                      title: 'Jam',
+                                  buildFieldIconDetail(
+                                      title: ' Jam',
                                       value: (stockOpname == null ||
-                                              stockOpname['date_create'] ==
+                                              stockOpname[
+                                                      'session_start_date'] ==
                                                   false)
                                           ? '-'
-                                          : timeUnformatted),
+                                          : stockOpname['session_start_date']
+                                              .toString()
+                                              .substring(10, 16)),
                                 ],
                               ),
                               const SizedBox(height: 32),
