@@ -147,7 +147,7 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
             listProductQtyBarcode =
                 context.read<DetailBarcodeCubit>().dataItems;
 
-            log("listProductQtyBarcode: ${listProductQtyBarcode.map((e) => e).toList().toString()}");
+            log("listProductQtyBarcode: ${listProductQtyBarcode.map((e) => e.toJson()).toList().toString()}");
             // listBarcode = state.productState.data?.result ?? [];
 
             // log("barcode data ${listBarcode.map((e) => e["barcode"]).toList().toString()}");
@@ -456,31 +456,31 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
                         List<Map<String, dynamic>> listToConfirm = [];
                         for (var e in listProductQty) {
                           Map<String, dynamic> product = {
-                            "id": e.id,
+                            "id": e.idMoveWithoutPackage,
                             "qty_done": 0.0,
                           };
                           listProductQtyPrevious.add(product);
                         }
 
-                        log("listProductQtyPrevious: ${listProductQtyPrevious.map((e) => e).toList().toString()}");
+                        log("listProductQtyPrevious: ${listProductQtyPrevious.map((e) => e.toString()).toList().toString()}");
 
                         for (var e in listProductQtyPrevious) {
                           for (var element in listProductQty) {
                             final objectQuantityValue = DetailWriteRequestDto(
-                              idMove: element.id,
+                              idMove: element.idMoveWithoutPackage,
                               quantityValue: element.value,
                             ).toMap();
 
-                            if (element.id == e["id"] &&
+                            if (element.idMoveWithoutPackage == e["id"] &&
                                 element.value != e["qty_done"]) {
                               listToConfirm.add(objectQuantityValue);
                             }
                           }
                         }
 
-                        log("listProduct: ${listProductQty.map((e) => e.value).toList().toString()}");
+                        log("listProduct: ${listProductQty.map((e) => e.toJson()).toList().toString()}");
                         log("listProductPrev: ${listProductQtyPrevious.map((e) => e['qty_done']).toList().toString()}");
-                        log("listToConfirmA: ${listToConfirm.map((e) => e).toList().toString()}");
+                        log("listToConfirmA: ${listToConfirm.map((e) => e.toString()).toList().toString()}");
 
                         if (isSubmitted) {
                           return;
