@@ -430,13 +430,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                         if (listStockOpname.isNotEmpty) {
                                           stockOpname = listStockOpname.first;
                                           timeUnformatted =
-                                              stockOpname['session_start_date']
+                                              stockOpname['date_create']
                                                   .toString()
                                                   .substring(10);
                                           log("timeUnformatted: ${timeUnformatted.toString()}");
 
                                           final date =
-                                              stockOpname['session_start_date'];
+                                              stockOpname['date_create'];
 
                                           DateTime scheduleDate =
                                               DateTime.parse(date);
@@ -1057,16 +1057,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                   title: 'Warehouse',
                                   // value: "itemStockScheduled['product_id'][1]",
                                   value: (stockOpname == null ||
-                                          stockOpname['warehouse_id'] == false)
+                                          stockOpname['warehouse_name'] ==
+                                              false)
                                       ? ''
-                                      : stockOpname['warehouse_id'][1]),
+                                      : stockOpname['warehouse_name']),
                               buildCustomFieldDetail(
                                   title: 'Location Stock',
                                   // value: "itemStockScheduled['location_id'][1]",
                                   value: (stockOpname == null ||
-                                          stockOpname['location_id'] == false)
+                                          stockOpname['location_name'] == false)
                                       ? ''
-                                      : stockOpname['location_id'][1]),
+                                      : stockOpname['location_name']),
                               //  buildCustomField(title: 'Address', value: stockOpname[''])   ,
                               Row(
                                 mainAxisAlignment:
@@ -1076,24 +1077,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                       title: 'Tanggal',
                                       // value: "itemStockScheduled['date']"
                                       value: (stockOpname == null ||
-                                              stockOpname[
-                                                      'session_start_date'] ==
+                                              stockOpname['date_create'] ==
                                                   false)
                                           ? ''
                                           : DateFormat(
                                                   "EEEE, d MMMM yyyy", "id_ID")
                                               .format(DateTime.parse(
-                                                  stockOpname[
-                                                          'session_start_date']
+                                                  stockOpname['date_create']
                                                       .substring(0, 10)))),
                                   buildFieldIconDetail(
                                       title: ' Jam',
                                       value: (stockOpname == null ||
-                                              stockOpname[
-                                                      'session_start_date'] ==
+                                              stockOpname['date_create'] ==
                                                   false)
                                           ? '-'
-                                          : stockOpname['session_start_date']
+                                          : stockOpname['date_create']
                                               .toString()
                                               .substring(10, 16)),
                                 ],

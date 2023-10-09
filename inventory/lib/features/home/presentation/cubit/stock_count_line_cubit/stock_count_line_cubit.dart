@@ -28,7 +28,7 @@ class StockCountLineCubit extends Cubit<StockCountLineState> {
         jsonrpc: "2.0",
         params: Params(
           token: token,
-          model: "stock.count.session",
+          model: "scaleocean.inventory.count.session",
           method: "update_session_lines",
           args: [
             [sessionId],
