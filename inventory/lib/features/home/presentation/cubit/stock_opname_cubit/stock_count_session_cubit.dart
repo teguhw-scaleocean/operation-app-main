@@ -31,7 +31,7 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
           model: "scaleocean.inventory.count.session",
           method: "get_inventory_count_session",
           args: [
-            [],
+            // [],
             [
               ["warehouse_id", "=", warehouseId],
               ["user_ids", "=", userId]

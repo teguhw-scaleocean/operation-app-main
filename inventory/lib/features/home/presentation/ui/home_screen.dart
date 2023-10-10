@@ -15,6 +15,8 @@ import 'package:inventory/shared_libraries/common/state/view_data_state.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:time_remaining/time_remaining.dart';
+import 'package:flutter/services.dart' as service;
+import 'package:yaml/yaml.dart';
 
 import '../../../../core/navigation/argument/operation_argument.dart';
 import '../../../../core/navigation/routes.dart';
@@ -348,14 +350,34 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: [
-                                                      Text(
-                                                          'Inventory App v 1.1',
-                                                          style: BaseText
-                                                              .whiteText10
-                                                              .copyWith(
-                                                                  fontStyle:
-                                                                      FontStyle
-                                                                          .italic)),
+                                                      FutureBuilder(
+                                                          future: service
+                                                              .rootBundle
+                                                              .loadString(
+                                                                  "pubspec.yaml"),
+                                                          builder: (context,
+                                                              snapshot) {
+                                                            String
+                                                                latestVersion =
+                                                                "";
+
+                                                            if (snapshot
+                                                                .hasData) {
+                                                              var yaml = loadYaml(
+                                                                  snapshot.data
+                                                                      .toString());
+                                                              latestVersion =
+                                                                  yaml[
+                                                                      'version'];
+                                                            }
+                                                            return Text(
+                                                                'Inventory App v$latestVersion',
+                                                                style: BaseText
+                                                                    .whiteText10
+                                                                    .copyWith(
+                                                                        fontStyle:
+                                                                            FontStyle.italic));
+                                                          }),
                                                       const SizedBox(
                                                           height: 10),
                                                       Text(
