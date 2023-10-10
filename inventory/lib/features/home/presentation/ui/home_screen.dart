@@ -961,7 +961,8 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20), topRight: Radius.circular(20)),
         ),
-        isScrollControlled: false,
+        isScrollControlled: true,
+        showDragHandle: true,
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, stockState) {
@@ -981,16 +982,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(height: 16),
-                    Container(
-                      height: 6,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(40),
-                        color: ColorName.lightNewGreyColor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+                    // const SizedBox(height: 16),
+                    // Container(
+                    //   height: 6,
+                    //   width: 40,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(40),
+                    //     color: ColorName.lightNewGreyColor,
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 8),
                     // Empty Stock Opname
                     Visibility(
                       visible: isEmpty,
@@ -1051,8 +1052,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       visible: !isEmpty,
                       child: SizedBox(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 18),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,

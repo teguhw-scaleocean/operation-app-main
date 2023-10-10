@@ -57,13 +57,14 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
       child: Scaffold(
         backgroundColor: ColorName.whiteColor,
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(75),
+          preferredSize: const Size.fromHeight(58),
           child: AppBar(
             leading: IconButton(
               onPressed: () => Navigator.of(context).pop(),
               icon: const Icon(
                 Icons.arrow_back_ios_new,
                 color: ColorName.blackColor,
+                size: 16,
               ),
             ),
             centerTitle: true,
@@ -71,6 +72,7 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
                 style: BaseText.blackText16
                     .copyWith(fontWeight: BaseText.semiBold)),
             backgroundColor: ColorName.whiteColor,
+            elevation: 1,
           ),
         ),
         body: Padding(
@@ -154,8 +156,8 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
       onTap: () => Navigator.pushNamed(context, AppRoutes.stockScheduleDetail,
           arguments: sessionItem),
       child: SizedBox(
-        height: 120,
-        width: double.infinity,
+        // height: 87,
+        // width: double.infinity,
         child: Card(
           elevation: 0,
           shape:
