@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory/core/navigation/argument/home_argument.dart';
 import 'package:inventory/core/navigation/argument/stock_count_session_line.dart';
+import 'package:inventory/core/navigation/argument/stock_session_detail_argument.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../core/navigation/argument/operation_argument.dart';
@@ -216,8 +217,9 @@ class MainApp extends StatelessWidget {
                               statusBarBrightness: Brightness.light,
                               statusBarColor: ColorName.whiteColor),
                           child: StockCountSessionDetailScreen(
-                              stockSessionLines:
-                                  argument as StockSessionLines)),
+                            stockSessionDetailArgument:
+                                argument as StockSessionDetailArgument,
+                          )),
                     ));
           default:
             return MaterialPageRoute(

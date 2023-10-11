@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
+import 'package:inventory/shared_libraries/common/error/failure_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../core/network/env/env.dart';
@@ -48,5 +51,34 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
                 message: failure.errorMessage, failure: failure))),
         (data) => emit(StockCountSessionState(
             stockCountSessionState: ViewData.loaded(data: data))));
+  }
+
+  Future<bool> startButtonSession({required int stockSessionId}) async {
+    String token =
+        sharedPreferences.getString(AppConstants.cachedKey.tokenKey) ?? '';
+
+    WarehouseRequestDto params = WarehouseRequestDto(
+      jsonrpc: "2.0",
+      params: Params(
+        token: token,
+        model: "scaleocean.inventory.count.session",
+        method: "button_start",
+        args: [
+          [stockSessionId]
+        ],
+        context: Context(),
+      ),
+    );
+
+    var result = await getStockCountSessionUsecase.call(params);
+    return result.fold((failure) {
+      FailureResponse(errorMessage: failure.errorMessage);
+
+      return false;
+    }, (data) => true);
+    // await Future.delayed(
+    //     const Duration(milliseconds: 400), () => result = true);
+    // log("result from cubit $result");
+    // return result;
   }
 }

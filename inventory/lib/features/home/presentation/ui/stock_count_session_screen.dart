@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory/core/navigation/argument/stock_count_session_line.dart';
+import 'package:inventory/core/navigation/argument/stock_session_detail_argument.dart';
 
 import '../../../../core/navigation/argument/stock_count_session.dart';
 import '../../../../core/navigation/routes.dart';
@@ -138,7 +139,8 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
 
   Widget _buildItemStockSchedule(
       item, dynamic date, dynamic location, dynamic warehouse, int sessionId) {
-    StockSessionLines sessionItem = StockSessionLines.fromJson(item);
+    // StockSessionLines sessionItem = item;
+    log("sessionItem===${item.toString()}");
     // String dateFormatted = '';
 
     getFormatedDate(date) {
@@ -154,7 +156,8 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
 
     return InkWell(
       onTap: () => Navigator.pushNamed(context, AppRoutes.stockScheduleDetail,
-          arguments: sessionItem),
+          arguments: StockSessionDetailArgument(
+              stockSessionLines: item, isStartedButton: false)),
       child: SizedBox(
         // height: 87,
         // width: double.infinity,

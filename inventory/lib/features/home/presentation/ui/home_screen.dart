@@ -4,18 +4,17 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' as service;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:inventory/core/navigation/argument/home_argument.dart';
 import 'package:inventory/core/navigation/argument/stock_count_session.dart';
-import 'package:inventory/core/network/env/env.dart';
+import 'package:inventory/core/navigation/argument/stock_session_detail_argument.dart';
 import 'package:inventory/features/home/presentation/cubit/stock_opname_cubit/stock_count_session_state.dart';
 import 'package:inventory/shared_libraries/common/state/view_data_state.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:time_remaining/time_remaining.dart';
-import 'package:flutter/services.dart' as service;
 import 'package:yaml/yaml.dart';
 
 import '../../../../core/navigation/argument/operation_argument.dart';
@@ -27,7 +26,6 @@ import '../../../../injections/injections.dart';
 import '../../../../shared_libraries/common/constants/resource_constants.dart';
 import '../../../../shared_libraries/common/theme/theme.dart';
 import '../../../../shared_libraries/component/custom_field.dart';
-import '../../../../shared_libraries/component/custom_field_icon.dart';
 import '../../../../shared_libraries/component/general_dialog.dart';
 import '../../../../shared_libraries/component/loading_overlay.dart';
 import '../../../../shared_libraries/component/loading_widget.dart';
@@ -67,47 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isFinishedTime = false;
   bool isToday = false;
 
-  // void setCountDown() {
-  //   const reduceBySeconds = 1;
-  //   const reduceByMinutes = 1;
-  //   const reduceByHours = 1;
-  //   int minutes = 0;
-  //   int hours = 0;
-
-  //   if (isSheetOpen) {
-  //     log(isSheetOpen.toString());
-
-  //     sheetSetState(() {
-  //       final seconds = duration.inSeconds - reduceBySeconds;
-  //       if (duration.inSeconds == 00) {
-  //         minutes = duration.inMinutes - reduceByMinutes;
-  //       } else if (duration.inMinutes == 00) {
-  //         hours = duration.inHours - reduceByHours;
-  //       }
-  //       duration = Duration(seconds: seconds, minutes: minutes, hours: hours);
-  //     });
-  //   } else {
-  //     final seconds = duration.inSeconds - reduceBySeconds;
-  //     final minutes = duration.inMinutes - reduceByMinutes;
-  //     final hours = duration.inHours - reduceByHours;
-  //     duration = Duration(seconds: seconds, minutes: minutes, hours: hours);
-  //   }
-  // }
-
-  // void startTimer() {
-  //   countDownTimer =
-  //       Timer.periodic(const Duration(seconds: 1), (_) => setCountDown());
-  // }
-
-  // void stopTimer() {
-  //   setState(() => countDownTimer!.cancel());
-  // }
-
-  // void resetTimer() {
-  //   stopTimer();
-  //   setState(() => duration = const Duration(days: 5));
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -116,15 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _timer = Timer(const Duration(milliseconds: 50),
         () => getWarehouse(companyId: companyId));
-
-    // if (isFinishedTime) {
-    //   _buildReminderStockOpname(context);
-    // }
   }
 
   @override
   void dispose() {
-    _timerToGetUser.cancel();
     _timer.cancel();
 
     super.dispose();
@@ -153,6 +105,19 @@ class _HomeScreenState extends State<HomeScreen> {
         .getStockCountSession(userId: [userIds], warehouseId: warehouseId);
   }
 
+  /// GIVE start_button navigate to StockSessionDetailScreen with prevent to back
+  /// WHEN is Submitted
+  /// THEN back to HOME
+  Future<bool> startButtonSession({required int stockSessionId}) async {
+    bool result = false;
+    log(stockSessionId.toString());
+    await context
+        .read<StockCountSessionCubit>()
+        .startButtonSession(stockSessionId: stockSessionId)
+        .then((value) => result = value);
+    return result;
+  }
+
   List<ResultUser> listUSers = [];
   List<Result>? listWarehouseName = [];
   List<ResultOverview>? listOverviews = [];
@@ -178,14 +143,6 @@ class _HomeScreenState extends State<HomeScreen> {
         iconPath: 'assets/icon/home/3.svg',
         color: ColorName.purpleColor,
         bgPath: 'assets/icon/home/3bg.svg'),
-    // StyleItemOverview(
-    //     iconPath: 'assets/icon/home/4.png',
-    //     color: ColorName.homeYellowColor,
-    //     bgPath: 'assets/icon/home/4bg.png'),
-    // StyleItemOverview(
-    //     iconPath: 'assets/icon/home/5.svg',
-    //     bgPath: 'assets/icon/home/5bg.svg',
-    //     color: const Color(0xFFD52B94))
   ];
   List<dynamic>? listOperations = [];
   // By Status
@@ -317,12 +274,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         user = listUSers.first;
                                         companyId = user.companyId?.first;
                                         log('user companyId: ${companyId.toString()}');
-
-                                        // var successSnackBar = SnackBar(
-                                        //     content: Text('Success User',
-                                        //         style: BaseText.whiteText14));
-                                        // ScaffoldMessenger.of(context)
-                                        //     .showSnackBar(successSnackBar);
                                       }
                                     },
                                     builder: (context, state) {
@@ -450,7 +401,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                         log("listStockOpname: ${listStockOpname.map((e) => e['date_create']).toList().toString()}");
 
                                         if (listStockOpname.isNotEmpty) {
-                                          stockOpname = listStockOpname.first;
+                                          stockOpname = listStockOpname
+                                              .firstWhere((element) =>
+                                                  element["state"] == "Draft");
+
+                                          log("stockOpname: ${stockOpname.toString()}");
                                           timeUnformatted =
                                               stockOpname['date_create']
                                                   .toString()
@@ -635,115 +590,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         _buildSelectWarehouse(context);
                       }
                     },
-                    // showCupertinoDialog(
-                    //     barrierDismissible: true,
-                    //     context: context,
-                    //     builder: (context) {
-                    //       return StatefulBuilder(builder: (context, modalState) {
-                    //         return Dialog(
-                    //           shape: RoundedRectangleBorder(
-                    //               borderRadius: BorderRadius.circular(10.w)),
-                    //           child: Padding(
-                    //             padding: EdgeInsets.symmetric(
-                    //               horizontal: 16.w,
-                    //             ),
-                    //             child: SizedBox(
-                    //               height: 260.h,
-                    //               child: Column(
-                    //                 children: [
-                    //                   Row(
-                    //                     mainAxisAlignment:
-                    //                         MainAxisAlignment.spaceBetween,
-                    //                     children: [
-                    //                       Text(
-                    //                         'Pilih warehouse',
-                    //                         style: BaseText.mainTextStyle14
-                    //                             .copyWith(
-                    //                                 fontWeight: BaseText.semiBold),
-                    //                       ),
-                    //                       IconButton(
-                    //                         onPressed: () =>
-                    //                             Navigator.of(context).maybePop(),
-                    //                         icon: const Icon(Icons.close,
-                    //                             color: ColorName.mainColor,
-                    //                             size: 16),
-                    //                       ),
-                    //                     ],
-                    //                   ),
-                    //                   // SizedBox(height: 20.h),
-                    //                   // Flexible(
-                    //                   //   child: CupertinoScrollbar(
-                    //                   //     controller: scrollController,
-                    //                   //     child: ListView.builder(
-                    //                   //         controller: scrollController,
-                    //                   //         itemCount: listWarehouse.length,
-                    //                   //         itemBuilder: (context, index) {
-                    //                   //           var item = listWarehouse[index];
-
-                    //                   //           return Row(
-                    //                   //             children: [
-                    //                   //               Radio(
-                    //                   //                   value: item,
-                    //                   //                   groupValue: groupValue,
-                    //                   //                   onChanged: (value) {
-                    //                   //                     setState(() {
-                    //                   //                       groupValue = value;
-                    //                   //                     });
-                    //                   //                   }),
-                    //                   //               Text(item,
-                    //                   //                   style: BaseText.blackText14),
-                    //                   //             ],
-                    //                   //           );
-                    //                   //         }),
-                    //                   //   ),
-                    //                   // ),
-
-                    //                   Flexible(
-                    //                     child: CupertinoScrollbar(
-                    //                       controller: scrollController,
-                    //                       child: SingleChildScrollView(
-                    //                           controller: scrollController,
-                    //                           child: Wrap(
-                    //                             children: listWarehouseName!
-                    //                                 .map<Widget>((e) {
-                    //                               return Row(
-                    //                                 children: [
-                    //                                   Radio(
-                    //                                       value: e,
-                    //                                       groupValue: groupValue,
-                    //                                       onChanged: (value) {
-                    //                                         modalState(() {
-                    //                                           groupValue = value;
-                    //                                         });
-                    //                                       }),
-                    //                                   Flexible(
-                    //                                     child: Text(e.name,
-                    //                                         maxLines: 2,
-                    //                                         textAlign:
-                    //                                             TextAlign.left,
-                    //                                         style: BaseText
-                    //                                             .blackText14),
-                    //                                   ),
-                    //                                 ],
-                    //                               );
-                    //                             }).toList(),
-                    //                           )),
-                    //                     ),
-                    //                   ),
-
-                    //                   SizedBox(height: 16.h),
-                    //                   PrimaryButton(
-                    //                       height: 36,
-                    //                       width: double.infinity,
-                    //                       title: 'SIMPAN'),
-                    //                   SizedBox(height: 16.h)
-                    //                 ],
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         );
-                    //       });
-                    //     }),
                     child: Container(
                       height: 40,
                       width: mediaQuery.width - 100,
@@ -982,16 +828,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // const SizedBox(height: 16),
-                    // Container(
-                    //   height: 6,
-                    //   width: 40,
-                    //   decoration: BoxDecoration(
-                    //     borderRadius: BorderRadius.circular(40),
-                    //     color: ColorName.lightNewGreyColor,
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 8),
                     // Empty Stock Opname
                     Visibility(
                       visible: isEmpty,
@@ -1120,13 +956,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 32),
                               InkWell(
-                                onTap: () => Navigator.pushNamed(
-                                    context, AppRoutes.stockSchedule,
-                                    arguments: StockCountSessionArgument(
-                                        userIds: user.id ?? 0,
-                                        warehouseId: (warehouseId == 0)
-                                            ? warehouseInitId
-                                            : warehouseId)),
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.stockSchedule,
+                                      arguments: StockCountSessionArgument(
+                                          userIds: user.id ?? 0,
+                                          warehouseId: (warehouseId == 0)
+                                              ? warehouseInitId
+                                              : warehouseId));
+                                },
                                 child: SizedBox(
                                   child: Column(
                                     children: [
@@ -1153,12 +991,46 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 35),
                               // Schedule Date - Current Date
                               InkWell(
-                                onTap: () {
-                                  var successSnackBar = SnackBar(
-                                      content: Text('Under Development..',
-                                          style: BaseText.whiteText14));
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(successSnackBar);
+                                onTap: () async {
+                                  final stockSessionId = stockOpname["id"];
+                                  if (isToday) {
+                                    Future.delayed(
+                                            const Duration(milliseconds: 50),
+                                            () => startButtonSession(
+                                                stockSessionId: stockSessionId))
+                                        .then((value) {
+                                      if (value) {
+                                        Future.delayed(
+                                            const Duration(seconds: 1), () {
+                                          var successSnackBar = SnackBar(
+                                              content: Text('Session Started..',
+                                                  style: BaseText.whiteText14));
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(successSnackBar);
+                                        }).then(
+                                            (value) async =>
+                                                await Navigator.pushNamed(
+                                                    context,
+                                                    AppRoutes
+                                                        .stockScheduleDetail,
+                                                    arguments:
+                                                        StockSessionDetailArgument(
+                                                            stockSessionLines:
+                                                                stockOpname,
+                                                            isStartedButton:
+                                                                true)));
+                                      } else {
+                                        Future.delayed(
+                                            const Duration(seconds: 1), () {
+                                          var notStartedSnackBar = SnackBar(
+                                              content: Text("Not started yet",
+                                                  style: BaseText.whiteText14));
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(notStartedSnackBar);
+                                        });
+                                      }
+                                    });
+                                  }
                                 },
                                 child: Material(
                                   color: (isFinishedTime || isToday)

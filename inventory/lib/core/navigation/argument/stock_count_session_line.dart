@@ -67,10 +67,10 @@ class StockSessionLines {
             ? []
             : List<UserId>.from(
                 json["user_ids"]!.map((x) => UserId.fromJson(x))),
-        lineIds: json["line_ids"] == null
+        lineIds: json["session_line_ids"] == null
             ? []
             : List<LineId>.from(
-                json["line_ids"]!.map((x) => LineId.fromJson(x))),
+                json["session_line_ids"]!.map((x) => LineId.fromJson(x))),
       );
 
   Map<dynamic, dynamic> toJson() => {
@@ -92,7 +92,7 @@ class StockSessionLines {
         "user_ids": userIds == null
             ? []
             : List<dynamic>.from(userIds!.map((x) => x.toJson())),
-        "line_ids": lineIds == null
+        "session_line_ids": lineIds == null
             ? []
             : List<dynamic>.from(lineIds!.map((x) => x.toJson())),
       };

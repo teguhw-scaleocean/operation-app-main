@@ -42,7 +42,7 @@ Widget buildCustomFieldDetail({required String title, required String value}) {
 }
 
 Widget buildFieldIconDetail({required String title, required String value}) {
-  return Flexible(
+  return FittedBox(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
