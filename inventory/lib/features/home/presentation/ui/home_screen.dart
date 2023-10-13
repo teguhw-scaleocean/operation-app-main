@@ -62,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var dateOutput;
   var timeUnformatted;
   var companyId;
+  var userId;
   bool isFinishedTime = false;
   bool isToday = false;
 
@@ -70,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     int companyId = sharedPreferences.getInt(KeyHelper.companyId) ?? 00;
+    userId = sharedPreferences.getInt(KeyHelper.idUser) ?? 00;
 
     _timer = Timer(const Duration(milliseconds: 50),
         () => getWarehouse(companyId: companyId));
@@ -100,9 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
     isFinishedTime = false;
     isToday = false;
 
-    context
-        .read<StockCountSessionCubit>()
-        .getStockCountSession(userId: [userIds], warehouseId: warehouseId);
+    context.read<StockCountSessionCubit>().getStockCountSession(
+        userId: [userIds], warehouseId: warehouseId, isFindOne: false);
   }
 
   /// GIVE start_button navigate to StockSessionDetailScreen with prevent to back
@@ -202,9 +203,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   Future.delayed(
                       const Duration(milliseconds: 650), () => getUser());
                   Future.delayed(
-                      const Duration(seconds: 2),
-                      () => getStockCountSession(
-                          userIds: user.id ?? 0, warehouseId: warehouseInitId));
+                      const Duration(seconds: 1),
+                      () async => await getStockCountSession(
+                          userIds: userId ?? user.id,
+                          warehouseId: warehouseInitId));
                   setState(() {});
                 }
               } else if (statusOverview.isHasData) {
@@ -400,12 +402,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                         //         .compareTo(a['date_create']));
                                         log("listStockOpname: ${listStockOpname.map((e) => e['date_create']).toList().toString()}");
 
-                                        if (listStockOpname.isNotEmpty) {
-                                          stockOpname = listStockOpname
-                                              .firstWhere((element) =>
-                                                  element["state"] == "Draft");
-
-                                          log("stockOpname: ${stockOpname.toString()}");
+                                        stockOpname =
+                                            listStockOpname.firstWhere(
+                                                (element) =>
+                                                    element["state"] == "Draft",
+                                                orElse: () =>
+                                                    (listStockOpname.isNotEmpty)
+                                                        ? listStockOpname.first
+                                                        : null);
+                                        log("stockOpname: ${stockOpname.toString()}");
+                                        if (stockOpname != null) {
                                           timeUnformatted =
                                               stockOpname['date_create']
                                                   .toString()
@@ -1030,6 +1036,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         });
                                       }
                                     });
+                                  } else {
+                                    var unableToStartSnackBar = SnackBar(
+                                        content: Text('Cannot Start..',
+                                            style: BaseText.whiteText14));
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(unableToStartSnackBar);
                                   }
                                 },
                                 child: Material(

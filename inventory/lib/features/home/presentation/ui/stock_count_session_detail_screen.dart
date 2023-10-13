@@ -11,6 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory/core/navigation/argument/stock_count_session_line.dart';
 import 'package:inventory/core/navigation/argument/stock_session_detail_argument.dart';
+import 'package:inventory/features/home/presentation/cubit/stock_count_line_cubit/stock_count_line_state.dart';
+import 'package:inventory/features/home/presentation/cubit/stock_opname_cubit/stock_count_session_state.dart';
+import 'package:inventory/shared_libraries/common/state/view_data_state.dart';
 import 'package:inventory/shared_libraries/component/custom_field.dart';
 import 'package:inventory/shared_libraries/component/loading_overlay.dart';
 import 'package:inventory/shared_libraries/component/primary_button.dart';
@@ -20,7 +23,9 @@ import '../../../../domains/home/data/model/request/update_session_lines_request
 import '../../../../shared_libraries/common/constants/resource_constants.dart';
 import '../../../../shared_libraries/common/theme/theme.dart';
 import '../../../../shared_libraries/component/general_dialog.dart';
+import '../../../../shared_libraries/component/loading_widget.dart';
 import '../cubit/stock_count_line_cubit/stock_count_line_cubit.dart';
+import '../cubit/stock_opname_cubit/stock_count_session_cubit.dart';
 
 class StockCountSessionDetailScreen extends StatefulWidget {
   final StockSessionDetailArgument stockSessionDetailArgument;
@@ -46,39 +51,23 @@ class _StockCountSessionDetailScreenState
   bool isSubmitted = false;
   var isShowFab;
   String _scanBarcode = 'Unknown';
-  late ItemProduct selectedItem;
-  late StockSessionLines stockSessionLines;
+  var selectedItem;
+  var stockSessionLines;
+  StockSessionLines sessionData = StockSessionLines();
+  List<dynamic> listOfSession = [];
+  late Timer _timerSessionDetail;
 
   @override
   void initState() {
     super.initState();
 
+    _timerSessionDetail = Timer(const Duration(milliseconds: 50),
+        () => findOneSessionDetail(sessionId: stockSessionLines.id));
+
     log(widget.stockSessionDetailArgument.isStartedButton.toString());
     stockSessionLines = StockSessionLines.fromJson(
         widget.stockSessionDetailArgument.stockSessionLines);
     log(widget.stockSessionDetailArgument.stockSessionLines.toString());
-    listCountItems = stockSessionLines.lineIds?.map((e) {
-      return ItemProduct(
-          id: e.id,
-          name: e.productName,
-          value: (e.quantity == false) ? 0.0 : e.quantity,
-          location: e.locationName,
-          sku: e.sku,
-          isScan: e.isScan!,
-          serialNumber: '');
-    }).toList();
-    log(listCountItems!.map((e) => e.toJson()).toList().toString());
-
-    listCountItemsPrevious = stockSessionLines.lineIds?.map((e) {
-      return ItemProduct(
-          id: e.id,
-          name: e.productName,
-          value: (e.quantity == false) ? 0.0 : e.quantity,
-          location: e.locationName,
-          sku: e.sku,
-          isScan: e.isScan!,
-          serialNumber: '');
-    }).toList();
 
     scrollController = ScrollController();
     isShowFab = true;
@@ -102,11 +91,34 @@ class _StockCountSessionDetailScreenState
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+
+    _timerSessionDetail.cancel();
+  }
+
   Future<bool> updateStockSessionLines(BuildContext context, int sessionId,
       List<Map<String, dynamic>> sessionLinesValue) async {
     context.read<StockCountLineCubit>().updateStockSessionLines(
         sessionId: sessionId, sessionLinesRequestDto: sessionLinesValue);
     return true;
+  }
+
+  /// Change session state to done
+  Future<bool> getToDoneButonSession({required int sessionId}) async {
+    bool isSessionDone = false;
+    await context
+        .read<StockCountLineCubit>()
+        .getDoneButtonSession(sessionId: sessionId)
+        .then((value) => isSessionDone = value);
+    return isSessionDone;
+  }
+
+  Future<void> findOneSessionDetail({required int sessionId}) async {
+    context
+        .read<StockCountSessionCubit>()
+        .getStockCountSession(sessionId: sessionId, isFindOne: true);
   }
 
   @override
@@ -119,210 +131,297 @@ class _StockCountSessionDetailScreenState
           return true;
         }
       },
-      child: SafeArea(
-        child: Scaffold(
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(75.0),
-            child: AppBar(
-              backgroundColor: ColorName.whiteColor,
-              leading: (widget.stockSessionDetailArgument.isStartedButton)
-                  ? const SizedBox()
-                  : InkWell(
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new,
-                        color: ColorName.blackColor,
-                      ),
-                    ),
-              title: Text(
-                'Inventory Session',
-                style: BaseText.blackText16
-                    .copyWith(fontWeight: BaseText.semiBold),
-                textAlign: TextAlign.center,
-              ),
-              centerTitle: true,
-              elevation: 1,
-              actions: [
-                IconButton(
-                    onPressed: () => scanBarcodeNormal(context),
-                    icon: Image.asset(const AssetConstans().scanBarcode,
-                        height: 24, width: 24))
-              ],
-            ),
-          ),
-          body: SingleChildScrollView(
-            child: Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              color: ColorName.whiteColor,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        buildCustomFieldDetail(
-                            title: 'Session', value: stockSessionLines.name),
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              color: ColorName.doneColor),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            child: Text(
-                              stockSessionLines.state.toString().toUpperCase(),
-                              style: BaseText.whiteText12
-                                  .copyWith(fontWeight: BaseText.medium),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    buildCustomFieldDetail(
-                        title: 'Location',
-                        value: stockSessionLines.locationName),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        buildFieldIconDetail(
-                          title: 'Tanggal',
-                          value: DateFormat("EEEE, d MMMM yyyy", "id_ID")
-                              .format(DateTime.parse(stockSessionLines
-                                  .dateCreate
-                                  .substring(0, 10))),
-                        ),
-                        buildFieldIconDetail(
-                          title: ' Jam',
-                          value: stockSessionLines.dateCreate
-                              .toString()
-                              .substring(10, 16),
-                        ),
-                      ],
-                    ),
-                    const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        child: Divider(
-                          color: ColorName.borderNewColor,
-                        )),
-                    Text('Product',
-                        style: BaseText.mainTextStyle16
-                            .copyWith(fontWeight: BaseText.semiBold)),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: Scrollbar(
-                        controller: scrollController,
-                        child: ListView.builder(
-                            controller: scrollController,
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: listCountItems?.length,
-                            itemBuilder: (context, index) {
-                              // final item = listCount[index];
-                              final itemProduct = listCountItems?[index];
-                              // String productName =
-                              //     listCount[index]['product_id'][1];
+      child: BlocListener<StockCountSessionCubit, StockCountSessionState>(
+        listener: (context, state) {
+          final statusSession = state.stockCountSessionState.status;
 
-                              if (index == listCountItems!.length - 1) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 50),
-                                  child:
-                                      buildCountSection(context, itemProduct!),
-                                );
-                              } else {
-                                return buildCountSection(context, itemProduct!);
-                              }
-                              // return Container();
-                            }),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+          if (statusSession.isHasData) {
+            listOfSession = state.stockCountSessionState.data["result"] ?? [];
+            sessionData = StockSessionLines.fromJson(listOfSession.first);
+
+            log("sessionData: ", error: sessionData.toJson().toString());
+
+            listCountItems = sessionData.lineIds?.map((e) {
+              return ItemProduct(
+                  id: e.id,
+                  name: e.productName,
+                  value: (e.quantity == false) ? 0.0 : e.quantity,
+                  location: e.locationName,
+                  sku: e.sku,
+                  isScan: e.isScan!,
+                  serialNumber: '');
+            }).toList();
+            log(listCountItems!.map((e) => e.toJson()).toList().toString());
+
+            listCountItemsPrevious = sessionData.lineIds?.map((e) {
+              return ItemProduct(
+                  id: e.id,
+                  name: e.productName,
+                  value: (e.quantity == false) ? 0.0 : e.quantity,
+                  location: e.locationName,
+                  sku: e.sku,
+                  isScan: e.isScan!,
+                  serialNumber: '');
+            }).toList();
+          }
+        },
+        child: SafeArea(
+          child: BlocListener<StockCountLineCubit, StockCountLineState>(
+            listener: (context, state) {
+              final status = state.countState.status;
+
+              if (status.isHasData) {
+                Future.delayed(const Duration(milliseconds: 55), () {
+                  var sessionId = sessionData.id;
+                  getToDoneButonSession(sessionId: sessionId).then((value) {
+                    if (value) {
+                      Future.delayed(const Duration(seconds: 1), () {
+                        var successSnackBar = SnackBar(
+                            content: Text('Successful, session has done',
+                                style: BaseText.whiteText14));
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(successSnackBar);
+                      }).then((value) async {
+                        Navigator.maybePop(context);
+
+                        if (widget.stockSessionDetailArgument.isStartedButton) {
+                          await Navigator.pushNamedAndRemoveUntil(
+                              context, AppRoutes.home, (route) => false,
+                              arguments: false);
+                        }
+                      });
+                    } else {
+                      log("Failed to get done", error: value.toString());
+                    }
+                  });
+                });
+              }
+            },
+            child: Scaffold(
+              appBar: PreferredSize(
+                preferredSize: const Size.fromHeight(75.0),
+                child: AppBar(
+                  backgroundColor: ColorName.whiteColor,
+                  leading: (widget.stockSessionDetailArgument.isStartedButton)
+                      ? const SizedBox()
+                      : InkWell(
+                          onTap: () => Navigator.of(context).maybePop(),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: ColorName.blackColor,
+                          ),
+                        ),
+                  title: Text(
+                    'Inventory Session',
+                    style: BaseText.blackText16
+                        .copyWith(fontWeight: BaseText.semiBold),
+                    textAlign: TextAlign.center,
+                  ),
+                  centerTitle: true,
+                  elevation: 1,
+                  actions: [
+                    IconButton(
+                        onPressed: () => scanBarcodeNormal(context),
+                        icon: Image.asset(const AssetConstans().scanBarcode,
+                            height: 24, width: 24))
                   ],
                 ),
               ),
+              body: BlocBuilder<StockCountSessionCubit, StockCountSessionState>(
+                  builder: (context, state) {
+                final statusSession = state.stockCountSessionState.status;
+
+                if (statusSession.isLoading) {
+                  return buildLoadingWidget();
+                } else if (statusSession.isHasData) {
+                  return SingleChildScrollView(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      color: ColorName.whiteColor,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 28),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                buildCustomFieldDetail(
+                                    title: 'Session',
+                                    value: sessionData.name.toString()),
+                                Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: ColorName.doneColor),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    child: Text(
+                                      sessionData.state
+                                          .toString()
+                                          .toUpperCase(),
+                                      style: BaseText.whiteText12.copyWith(
+                                          fontWeight: BaseText.medium),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            buildCustomFieldDetail(
+                                title: 'Location',
+                                value: sessionData.locationName),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                buildFieldIconDetail(
+                                  title: 'Tanggal',
+                                  value:
+                                      DateFormat("EEEE, d MMMM yyyy", "id_ID")
+                                          .format(DateTime.parse(sessionData
+                                              .dateCreate
+                                              .substring(0, 10))),
+                                ),
+                                buildFieldIconDetail(
+                                  title: ' Jam',
+                                  value: sessionData.dateCreate
+                                      .toString()
+                                      .substring(10, 16),
+                                ),
+                              ],
+                            ),
+                            const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Divider(
+                                  color: ColorName.borderNewColor,
+                                )),
+                            Text('Product',
+                                style: BaseText.mainTextStyle16
+                                    .copyWith(fontWeight: BaseText.semiBold)),
+                            const SizedBox(height: 12),
+                            Expanded(
+                              child: Scrollbar(
+                                controller: scrollController,
+                                child: ListView.builder(
+                                    controller: scrollController,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: listCountItems?.length,
+                                    itemBuilder: (context, index) {
+                                      // final item = listCount[index];
+                                      final itemProduct =
+                                          listCountItems?[index];
+                                      // String productName =
+                                      //     listCount[index]['product_id'][1];
+
+                                      if (index == listCountItems!.length - 1) {
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 50),
+                                          child: buildCountSection(
+                                              context, itemProduct!),
+                                        );
+                                      } else {
+                                        return buildCountSection(
+                                            context, itemProduct!);
+                                      }
+                                      // return Container();
+                                    }),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              }),
+              floatingActionButton: BlocBuilder<StockCountSessionCubit,
+                      StockCountSessionState>(
+                  buildWhen: (previousState, currentState) =>
+                      previousState != currentState,
+                  builder: (context, state) {
+                    final statusSession = state.stockCountSessionState.status;
+
+                    if (statusSession.isHasData) {
+                      return Visibility(
+                        visible: isShowFab,
+                        child: (isSubmitted)
+                            ? LoadingButton(
+                                height: 36,
+                                width: MediaQuery.of(context).size.width / 1.1,
+                                title: 'Konfirmasi')
+                            : InkWell(
+                                onTap: () {
+                                  List<Map<String, dynamic>> listToConfirm = [];
+
+                                  for (var e in listCountItemsPrevious!) {
+                                    for (var element in listCountItems!) {
+                                      final UpdateSessionLinesRequestDto
+                                          objectQuantityValue =
+                                          UpdateSessionLinesRequestDto(
+                                        id: element.id,
+                                        quantity: element.value,
+                                        isScan: element.isScan,
+                                      );
+
+                                      if (element.id == e.id &&
+                                          element.value != e.value) {
+                                        listToConfirm
+                                            .add(objectQuantityValue.toJson());
+                                      }
+                                    }
+                                  }
+
+                                  log("listToConfirmA: ${listToConfirm.map((e) => e).toList().toString()}");
+
+                                  if (isSubmitted) {
+                                    return;
+                                  } else {
+                                    confirmToSubmitDialog(context, () {
+                                      Future.delayed(
+                                          const Duration(milliseconds: 300),
+                                          () {
+                                        if (listToConfirm.isNotEmpty &&
+                                            listCountItems !=
+                                                listCountItemsPrevious) {
+                                          updateStockSessionLines(context,
+                                                  sessionData.id, listToConfirm)
+                                              .then((value) {
+                                            setState(() {
+                                              isSubmitted = true;
+                                            });
+                                          });
+                                        } else {
+                                          Navigator.maybePop(context);
+                                          var noDataSnackBar = SnackBar(
+                                              content: Text(
+                                                  'No quantity updated',
+                                                  style: BaseText.whiteText14));
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(noDataSnackBar);
+                                        }
+                                      });
+                                    });
+                                  }
+                                },
+                                child: PrimaryButton(
+                                    height: 36,
+                                    width:
+                                        MediaQuery.of(context).size.width / 1.1,
+                                    title: 'Konfirmasi'),
+                              ),
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  }),
             ),
-          ),
-          floatingActionButton: Visibility(
-            visible: isShowFab,
-            child: (isSubmitted)
-                ? LoadingButton(
-                    height: 36,
-                    width: MediaQuery.of(context).size.width / 1.1,
-                    title: 'Konfirmasi')
-                : InkWell(
-                    onTap: () {
-                      List<Map<String, dynamic>> listToConfirm = [];
-
-                      for (var e in listCountItemsPrevious!) {
-                        for (var element in listCountItems!) {
-                          final UpdateSessionLinesRequestDto
-                              objectQuantityValue =
-                              UpdateSessionLinesRequestDto(
-                            id: element.id,
-                            quantity: element.value,
-                            isScan: element.isScan,
-                          );
-
-                          if (element.id == e.id && element.value != e.value) {
-                            listToConfirm.add(objectQuantityValue.toJson());
-                          }
-                        }
-                      }
-
-                      log("listToConfirmA: ${listToConfirm.map((e) => e).toList().toString()}");
-
-                      if (isSubmitted) {
-                        return;
-                      } else {
-                        confirmToSubmitDialog(context, () {
-                          Future.delayed(const Duration(milliseconds: 300), () {
-                            if (listToConfirm.isNotEmpty &&
-                                listCountItems != listCountItemsPrevious) {
-                              updateStockSessionLines(context,
-                                      stockSessionLines.id, listToConfirm)
-                                  .then((value) {
-                                if (value) {
-                                  setState(() {
-                                    isSubmitted = true;
-                                  });
-                                  Future.delayed(const Duration(seconds: 1),
-                                      () {
-                                    var successSnackBar = SnackBar(
-                                        content: Text('Success..',
-                                            style: BaseText.whiteText14));
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(successSnackBar);
-                                  }).then((value) async {
-                                    Navigator.maybePop(context);
-                                    await Navigator.pushNamedAndRemoveUntil(
-                                        context,
-                                        AppRoutes.home,
-                                        (route) => false,
-                                        arguments: false);
-                                  });
-                                }
-                              });
-                            } else {
-                              Navigator.maybePop(context);
-                              var noDataSnackBar = SnackBar(
-                                  content: Text('No quantity updated',
-                                      style: BaseText.whiteText14));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(noDataSnackBar);
-                            }
-                          });
-                        });
-                      }
-                    },
-                    child: PrimaryButton(
-                        height: 36,
-                        width: MediaQuery.of(context).size.width / 1.1,
-                        title: 'Konfirmasi'),
-                  ),
           ),
         ),
       ),

@@ -21,7 +21,10 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
             StockCountSessionState(stockCountSessionState: ViewData.initial()));
 
   getStockCountSession(
-      {required List<int> userId, required int warehouseId}) async {
+      {List<int>? userId,
+      int? warehouseId,
+      int? sessionId,
+      required bool isFindOne}) async {
     emit(StockCountSessionState(stockCountSessionState: ViewData.loading()));
 
     String token =
@@ -33,13 +36,20 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
           token: token,
           model: "scaleocean.inventory.count.session",
           method: "get_inventory_count_session",
-          args: [
-            [],
-            [
-              ["warehouse_id", "=", warehouseId],
-              ["user_ids", "=", userId]
-            ]
-          ],
+          args: (isFindOne)
+              ? [
+                  [],
+                  [
+                    ["id", "=", sessionId]
+                  ]
+                ]
+              : [
+                  [],
+                  [
+                    ["warehouse_id", "=", warehouseId],
+                    ["user_ids", "=", userId]
+                  ]
+                ],
           context: Context(),
           // service: "object",
         ));
@@ -62,10 +72,8 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
       params: Params(
         token: token,
         model: "scaleocean.inventory.count.session",
-        method: "button_start",
-        args: [
-          [stockSessionId]
-        ],
+        method: "start",
+        args: [stockSessionId],
         context: Context(),
       ),
     );

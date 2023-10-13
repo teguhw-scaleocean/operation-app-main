@@ -14,9 +14,10 @@ class PreferenceHelper {
   }
 
   static Future<void> saveUserResModel(
-      SharedPreferences preferences, int companyId) async {
+      SharedPreferences preferences, int userId, int companyId) async {
     await preferences.setInt(KeyHelper.companyId, companyId);
-    log("saveUserResModel companyId: $companyId");
+    await preferences.setInt(KeyHelper.idUser, userId);
+    log("saveUserResModel companyId: $companyId, userId: $userId");
   }
 
   static Future<void> clearUserCredential(SharedPreferences preferences) async {

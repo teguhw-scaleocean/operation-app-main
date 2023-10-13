@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:inventory/shared_libraries/common/error/failure_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../core/network/env/env.dart';
@@ -49,5 +50,29 @@ class StockCountLineCubit extends Cubit<StockCountLineState> {
         ),
       ),
     );
+  }
+
+  Future<bool> getDoneButtonSession({required int sessionId}) async {
+    String token =
+        sharedPreferences.getString(AppConstants.cachedKey.tokenKey) ?? '';
+
+    WarehouseRequestDto params = WarehouseRequestDto(
+        jsonrpc: "2.0",
+        params: Params(
+          token: token,
+          model: "scaleocean.inventory.count.session",
+          method: "validate_session",
+          args: [
+            [sessionId],
+          ],
+          context: Context(),
+        ));
+
+    final result = await getStockCountSessionUsecase.call(params);
+    return result.fold((failure) {
+      FailureResponse(errorMessage: failure.errorMessage);
+
+      return false;
+    }, (data) => true);
   }
 }

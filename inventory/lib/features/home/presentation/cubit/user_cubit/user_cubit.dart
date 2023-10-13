@@ -22,6 +22,7 @@ class UserCubit extends Cubit<UserState> {
         ));
 
   var companyId;
+  var userId;
 
   getUser({required String emailAddress}) async {
     emit(UserState(userState: ViewData.loading()));
@@ -40,10 +41,12 @@ class UserCubit extends Cubit<UserState> {
                 failure: failure))), (data) async {
       final user = data.result.first;
       companyId = user.companyId?.first;
+      userId = user.id;
 
       log("companyId === ${companyId.toString()}");
 
-      await PreferenceHelper.saveUserResModel(sharedPreferences, companyId);
+      await PreferenceHelper.saveUserResModel(
+          sharedPreferences, userId, companyId);
 
       emit(
         UserState(

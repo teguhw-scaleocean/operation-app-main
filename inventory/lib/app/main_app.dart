@@ -206,21 +206,31 @@ class MainApp extends StatelessWidget {
                     ));
           case AppRoutes.stockScheduleDetail:
             return MaterialPageRoute(
-                builder: (_) => BlocProvider<StockCountLineCubit>(
-                      create: (context) => StockCountLineCubit(
-                        getStockCountSessionUsecase: sl(),
-                        sharedPreferences: sl(),
-                      ),
-                      child: AnnotatedRegion<SystemUiOverlayStyle>(
-                          value: const SystemUiOverlayStyle(
-                              statusBarIconBrightness: Brightness.dark,
-                              statusBarBrightness: Brightness.light,
-                              statusBarColor: ColorName.whiteColor),
-                          child: StockCountSessionDetailScreen(
-                            stockSessionDetailArgument:
-                                argument as StockSessionDetailArgument,
-                          )),
-                    ));
+                builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider<StockCountSessionCubit>(
+                            create: (context) => StockCountSessionCubit(
+                              getStockCountSessionUsecase: sl(),
+                              sharedPreferences: sl(),
+                            ),
+                          ),
+                          BlocProvider<StockCountLineCubit>(
+                            create: (context) => StockCountLineCubit(
+                              getStockCountSessionUsecase: sl(),
+                              sharedPreferences: sl(),
+                            ),
+                          ),
+                        ],
+                        child: AnnotatedRegion<SystemUiOverlayStyle>(
+                            value: const SystemUiOverlayStyle(
+                                statusBarIconBrightness: Brightness.dark,
+                                statusBarBrightness: Brightness.light,
+                                statusBarColor: ColorName.whiteColor),
+                            child: StockCountSessionDetailScreen(
+                              stockSessionDetailArgument:
+                                  argument as StockSessionDetailArgument,
+                            ))));
+
           default:
             return MaterialPageRoute(
                 builder: (_) => BlocProvider(

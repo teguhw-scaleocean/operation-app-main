@@ -48,6 +48,7 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
     context.read<StockCountSessionCubit>().getStockCountSession(
       userId: [widget.stockCountSessionArgument.userIds],
       warehouseId: widget.stockCountSessionArgument.warehouseId,
+      isFindOne: false,
     );
   }
 
