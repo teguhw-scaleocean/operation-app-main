@@ -402,15 +402,20 @@ class _OperationScreenState extends State<OperationScreen>
                                         ? <dynamic>[]
                                         : item['backorder_id']);
                               }).toList();
+
+                              // Sort list of all listOperation, also listOperationLate by id
+                              listOperation.sort(
+                                  (a, b) => b.pickingId.compareTo(a.pickingId));
+
                               listOperationLate = listOperation
                                   .where((element) => element.isLate == true)
                                   .toList();
 
-                              log("listOperation ${listOperation.map((e) => e.toMap()).toList().toString()}");
-                              log("listOperationLate ${listOperationLate.map((e) => e.location).toList()}");
+                              // log("listOperation ${listOperation.map((e) => e.toMap()).toList().toString()}");
+                              // log("listOperationLate ${listOperationLate.map((e) => e.location).toList()}");
                               listResultLate.addAll(listOperationLate);
                               listResultLateTemp.addAll(listOperationLate);
-                              log("listResultLateTemp ${listResultLateTemp.map((e) => e.location).toList()}");
+                              // log("listResultLateTemp ${listResultLateTemp.map((e) => e.location).toList()}");
 
                               listResultLate = listResultLate
                                   .where((element) =>
@@ -475,13 +480,17 @@ class _OperationScreenState extends State<OperationScreen>
                                         : item['backorder_id']);
                               }).toList();
 
-                              log("listOperationReady ${listOperationReady.map((e) => e.name).toList()}");
+                              // Sort by id
+                              listOperationReady.sort(
+                                  (a, b) => b.pickingId.compareTo(a.pickingId));
+
+                              // log("listOperationReady ${listOperationReady.map((e) => e.name).toList()}");
                               listResultReady.addAll(listOperationReady);
                               listResultReadyTemp.addAll(listOperationReady);
                               listResultReadyTemp = listResultReadyTemp
                                   .where((element) => element.isLate != true)
                                   .toList();
-                              log("listResultReadyTemp ${listResultReadyTemp.map((e) => e.name).toList()}");
+                              // log("listResultReadyTemp ${listResultReadyTemp.map((e) => e.name).toList()}");
 
                               // listResultReady = listResultReady
                               //     .where((element) => element.isLate != true)
@@ -535,7 +544,10 @@ class _OperationScreenState extends State<OperationScreen>
                                         : item['backorder_id']);
                               }).toList();
 
-                              log("listResultWaiting ${listResultWaiting.map((e) => e.name).toList()}");
+                              // Sort by id
+                              listOperationWaiting.sort(
+                                  (a, b) => b.pickingId.compareTo(a.pickingId));
+
                               listResultWaiting.addAll(listOperationWaiting);
                               listResultWaitingTemp
                                   .addAll(listOperationWaiting);
@@ -587,8 +599,10 @@ class _OperationScreenState extends State<OperationScreen>
                                         ? <dynamic>[]
                                         : item['backorder_id']);
                               }).toList();
+                              // Sort by id
+                              listOperationBackOrder.sort(
+                                  (a, b) => b.pickingId.compareTo(a.pickingId));
 
-                              log("listOperationBackOrder ${listOperationBackOrder.map((e) => e.name).toList()}");
                               listResultBackOrder
                                   .addAll(listOperationBackOrder);
                               listResultBackOrderTemp
