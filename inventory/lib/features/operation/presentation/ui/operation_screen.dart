@@ -354,14 +354,20 @@ class _OperationScreenState extends State<OperationScreen>
                           (item['backorder_id'] != false) ? true : false;
                       String statusConverted = "";
 
-                      if (!isLate && item['state'] == "assigned") {
+                      if (!isBackOrder &&
+                          !isLate &&
+                          item['state'] == "assigned") {
                         // Ready
                         statusConverted = "Ready";
-                      } else if (item['state'] == "confirmed") {
+                      } else if (!isBackOrder && item['state'] == "confirmed") {
                         // Waiting
                         statusConverted = "Waiting";
-                      } else if (isLate && item['state'] == "assigned" ||
-                          isLate && item['state'] == "confirmed") {
+                      } else if (!isBackOrder &&
+                              isLate &&
+                              item['state'] == "assigned" ||
+                          !isBackOrder &&
+                              isLate &&
+                              item['state'] == "confirmed") {
                         // Terlambat
                         statusConverted = "Terlambat";
                       } else if (isBackOrder) {
