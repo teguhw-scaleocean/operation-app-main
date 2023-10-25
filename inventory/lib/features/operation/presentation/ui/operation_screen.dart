@@ -362,12 +362,7 @@ class _OperationScreenState extends State<OperationScreen>
                       } else if (!isBackOrder && item['state'] == "confirmed") {
                         // Waiting
                         statusConverted = "Waiting";
-                      } else if (!isBackOrder &&
-                              isLate &&
-                              item['state'] == "assigned" ||
-                          !isBackOrder &&
-                              isLate &&
-                              item['state'] == "confirmed") {
+                      } else if (!isBackOrder && isLate) {
                         // Terlambat
                         statusConverted = "Terlambat";
                       } else if (isBackOrder) {
@@ -386,9 +381,8 @@ class _OperationScreenState extends State<OperationScreen>
                           status: statusConverted,
                           sku: item['origin'],
                           date: item['scheduled_date'].toString(),
-                          isLate: (difference > 0) ? true : false,
-                          isBackOrder:
-                              (item['backorder_id'] != false) ? true : false,
+                          isLate: isLate,
+                          isBackOrder: isBackOrder,
                           backOrder: (item['backorder_id'] == false)
                               ? <dynamic>[]
                               : item['backorder_id']);
@@ -1301,11 +1295,11 @@ class _OperationScreenState extends State<OperationScreen>
               item.moveIdsWithoutPackage,
               widget.argument.titleAppbar,
               item.status)),
-      child: SizedBox(
+      child: Flexible(
         // FIX: Padding bawah jika tidak ada nomor sku
         // inventory-v1.0.12-1
-        height: (item.sku == false) ? 84 : 120,
-        width: double.infinity,
+        // height: (item.sku == false || item.backOrder.isEmpty) ? 99 : 120,
+        // width: double.infinity,
         child: Card(
           elevation: 1,
           shape: RoundedRectangleBorder(
@@ -1317,6 +1311,7 @@ class _OperationScreenState extends State<OperationScreen>
             child: Wrap(
               children: [
                 Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1368,11 +1363,22 @@ class _OperationScreenState extends State<OperationScreen>
                         Text(item.date.substring(0, 10))
                       ],
                     ),
+                    (item.backOrder.isEmpty)
+                        ? const SizedBox(height: 0)
+                        : const SizedBox(height: 8),
+                    (item.backOrder.isEmpty)
+                        ? const SizedBox()
+                        : Text(item.backOrder.last.toString(),
+                            style: BaseText.greyText14),
+                    (item.backOrder.isEmpty)
+                        ? const SizedBox(height: 0)
+                        : const SizedBox(height: 8),
                     (item.sku == false)
                         ? const SizedBox(height: 0)
                         : const SizedBox(height: 9),
-                    Text((item.sku == false) ? "" : item.sku.toString(),
-                        style: BaseText.greyText14)
+                    (item.sku == false)
+                        ? const SizedBox(height: 0)
+                        : Text(item.sku.toString(), style: BaseText.greyText14)
                   ],
                 ),
               ],
