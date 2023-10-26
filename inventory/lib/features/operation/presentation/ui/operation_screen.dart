@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:inventory/shared_libraries/common/state/view_data_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/navigation/argument/operation_argument.dart';
 import '../../../../core/navigation/argument/operation_detail_argument.dart';
@@ -1295,94 +1296,98 @@ class _OperationScreenState extends State<OperationScreen>
               item.moveIdsWithoutPackage,
               widget.argument.titleAppbar,
               item.status)),
-      child: Flexible(
-        // FIX: Padding bawah jika tidak ada nomor sku
-        // inventory-v1.0.12-1
-        // height: (item.sku == false || item.backOrder.isEmpty) ? 99 : 120,
-        // width: double.infinity,
-        child: Card(
-          elevation: 1,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(color: ColorName.borderColor)),
-          color: ColorName.whiteColor,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Wrap(
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        RichText(
-                          text: TextSpan(
-                              text: item.location,
-                              style: BaseText.blackText16
-                                  .copyWith(fontWeight: BaseText.semiBold),
-                              children: [
-                                TextSpan(
-                                  text: ' ',
-                                  style: BaseText.blackText16
-                                      .copyWith(fontWeight: BaseText.semiBold),
-                                )
-                              ]),
+      child: Card(
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(color: ColorName.borderColor)),
+        color: ColorName.whiteColor,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Wrap(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                            text: item.location,
+                            style: BaseText.blackText16
+                                .copyWith(fontWeight: BaseText.semiBold),
+                            children: [
+                              TextSpan(
+                                text: ' ',
+                                style: BaseText.blackText16
+                                    .copyWith(fontWeight: BaseText.semiBold),
+                              )
+                            ]),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: (item.status == "Waiting")
+                              ? ColorName.waitingColor
+                              : (item.status == "Terlambat")
+                                  ? ColorName.lateColor
+                                  : (item.status == "Ready")
+                                      ? ColorName.readyColor
+                                      : (item.status == "Back Order")
+                                          ? ColorName.backOrderColor
+                                          : (item.status == "done")
+                                              ? ColorName.doneColor
+                                              : ColorName.lightNewGreyColor,
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            color: (item.status == "Waiting")
-                                ? ColorName.waitingColor
-                                : (item.status == "Terlambat")
-                                    ? ColorName.lateColor
-                                    : (item.status == "Ready")
-                                        ? ColorName.readyColor
-                                        : (item.status == "Back Order")
-                                            ? ColorName.backOrderColor
-                                            : (item.status == "done")
-                                                ? ColorName.doneColor
-                                                : ColorName.lightNewGreyColor,
-                          ),
-                          child: Text(
-                              "${item.status[0].toUpperCase()}${item.status.substring(1)}",
-                              style: BaseText.whiteText12
-                                  .copyWith(fontWeight: BaseText.medium)),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(item.name, style: BaseText.greyText14),
-                        Text(item.date.substring(0, 10))
-                      ],
-                    ),
-                    (item.backOrder.isEmpty)
-                        ? const SizedBox(height: 0)
-                        : const SizedBox(height: 8),
-                    (item.backOrder.isEmpty)
-                        ? const SizedBox()
-                        : Text(item.backOrder.last.toString(),
-                            style: BaseText.greyText14),
-                    (item.backOrder.isEmpty)
-                        ? const SizedBox(height: 0)
-                        : const SizedBox(height: 8),
-                    (item.sku == false)
-                        ? const SizedBox(height: 0)
-                        : const SizedBox(height: 9),
-                    (item.sku == false)
-                        ? const SizedBox(height: 0)
-                        : Text(item.sku.toString(), style: BaseText.greyText14)
-                  ],
-                ),
-              ],
-            ),
+                        child: Text(
+                            "${item.status[0].toUpperCase()}${item.status.substring(1)}",
+                            style: BaseText.whiteText12
+                                .copyWith(fontWeight: BaseText.medium)),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          item.name,
+                          style: BaseText.greyText14,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          softWrap: true,
+                        ),
+                      ),
+                      Text(
+                          "${DateFormat("d/MM/yy").format(DateTime.parse(item.date.substring(0, 10)))}${item.date.substring(10, 16)}",
+                          style: BaseText.greyText14)
+                    ],
+                  ),
+                  (item.backOrder.isEmpty)
+                      ? const SizedBox(height: 0)
+                      : const SizedBox(height: 8),
+                  (item.backOrder.isEmpty)
+                      ? const SizedBox()
+                      : Text(item.backOrder.last.toString(),
+                          style: BaseText.greyText14),
+                  (item.backOrder.isEmpty)
+                      ? const SizedBox(height: 0)
+                      : const SizedBox(height: 8),
+                  (item.sku == false)
+                      ? const SizedBox(height: 0)
+                      : const SizedBox(height: 9),
+                  (item.sku == false)
+                      ? const SizedBox(height: 0)
+                      : Text(item.sku.toString(), style: BaseText.greyText14)
+                ],
+              ),
+            ],
           ),
         ),
       ),
