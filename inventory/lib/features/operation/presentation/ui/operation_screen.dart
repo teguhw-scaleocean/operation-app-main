@@ -1364,6 +1364,7 @@ class _OperationScreenState extends State<OperationScreen>
                           softWrap: true,
                         ),
                       ),
+                      const SizedBox(width: 10),
                       Text(
                           "${DateFormat("d/MM/yy").format(DateTime.parse(item.date.substring(0, 10)))}${item.date.substring(10, 16)}",
                           style: BaseText.greyText14)
