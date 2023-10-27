@@ -701,41 +701,32 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemBuilder: (context, index) {
                             var e = listWarehouseName![index];
 
-                            return Container(
-                              padding: const EdgeInsets.only(right: 16),
-                              child: Row(
-                                children: [
-                                  Radio.adaptive(
-                                      visualDensity: const VisualDensity(
-                                        horizontal:
-                                            VisualDensity.minimumDensity,
-                                      ),
-                                      materialTapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                      activeColor: ColorName.mainColor,
-                                      value: e,
-                                      groupValue: groupValue,
-                                      onChanged: (value) {
-                                        sheetState(() {
-                                          groupValue = value;
-                                          // warehouseName = e.name;
-                                          warehouseId = groupValue.id;
-                                          warehouseName = groupValue.name;
-
-                                          log(warehouseId.toString());
-                                          log(warehouseName);
-                                        });
-                                        setState(() {});
-                                      }),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(e.name,
-                                        maxLines: 2,
-                                        textAlign: TextAlign.left,
-                                        style: BaseText.blackText14),
-                                  ),
-                                ],
+                            return RadioListTile(
+                              contentPadding: EdgeInsets.zero,
+                              visualDensity: const VisualDensity(
+                                horizontal: VisualDensity.minimumDensity,
                               ),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              activeColor: ColorName.mainColor,
+                              value: e,
+                              groupValue: groupValue,
+                              onChanged: (value) {
+                                sheetState(() {
+                                  groupValue = value;
+                                  // warehouseName = e.name;
+                                  warehouseId = groupValue.id;
+                                  warehouseName = groupValue.name;
+
+                                  log(warehouseId.toString());
+                                  log(warehouseName);
+                                });
+                                setState(() {});
+                              },
+                              title: Text(e.name,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.left,
+                                  style: BaseText.blackText14),
                             );
                           }),
                     ),
