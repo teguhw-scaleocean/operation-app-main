@@ -164,6 +164,9 @@ class SignInScreen extends StatelessWidget {
                       builder: (context, state) {
                         final status = state.signInDataState.status;
 
+                        // if (status.isError) {
+                        //   /// Jika error hide / show button
+                        // } else
                         if (status.isLoading) {
                           return const Center(
                             child: CircularProgressIndicator.adaptive(
@@ -177,21 +180,34 @@ class SignInScreen extends StatelessWidget {
                           return InkWell(
                             onTap: () {
                               if (_formKey.currentState!.validate()) {
-                                context.read<SignInBloc>().add(
-                                      /// Parsing data email, password, also _database name
-                                      /// from each textfield.
-                                      /// Then assigning it to an Object AuthRequestEntity.
-                                      SignIn(
-                                        authRequest: AuthRequestEntity(
-                                          jsonrpc: "2.0",
-                                          params: ParamsEntity(
-                                            login: emailController.text,
-                                            password: passwordController.text,
-                                            db: _database,
+                                if (listOfStaticDatabase.contains(_database)) {
+                                  context.read<SignInBloc>().add(
+                                        /// Parsing data email, password, also _database name
+                                        /// from each textfield.
+                                        /// Then assigning it to an Object AuthRequestEntity.
+                                        SignIn(
+                                          authRequest: AuthRequestEntity(
+                                            jsonrpc: "2.0",
+                                            params: ParamsEntity(
+                                              login: emailController.text,
+                                              password: passwordController.text,
+                                              db: _database,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    );
+                                      );
+                                } else {
+                                  var wrongInputSnackBar = SnackBar(
+                                      content: Text(
+                                          'Please check the server field',
+                                          style: BaseText.whiteText14));
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(wrongInputSnackBar);
+                                }
+                              } else {
+                                /// Harusnya jika empty password kesini
+                                /// Karena form tidak valid
+                                log("Harusnya jika empty password kesini");
                               }
                             },
                             child: PrimaryButton(
@@ -219,4 +235,9 @@ class SignInScreen extends StatelessWidget {
       ),
     ));
   }
+
+  List<String> listOfStaticDatabase = [
+    "inventory.dev.scaleocean.app",
+    "inventory.demo.scaleocean.app",
+  ];
 }

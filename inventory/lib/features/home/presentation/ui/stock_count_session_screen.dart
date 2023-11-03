@@ -12,6 +12,7 @@ import '../../../../core/navigation/routes.dart';
 import '../../../../shared_libraries/common/state/view_data_state.dart';
 import '../../../../shared_libraries/common/theme/theme.dart';
 import '../../../../shared_libraries/component/empty_state_operation.dart';
+import '../../../../shared_libraries/component/state_badge_widget.dart';
 import '../cubit/stock_opname_cubit/stock_count_session_cubit.dart';
 import '../cubit/stock_opname_cubit/stock_count_session_state.dart';
 
@@ -57,7 +58,7 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
     mediaQuery = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        backgroundColor: ColorName.whiteColor,
+        backgroundColor: ColorName.lightGreyColor,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(58),
           child: AppBar(
@@ -148,9 +149,9 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
       if (date.toString().isEmpty) {
         return '';
       } else {
-        var inputFormat = DateFormat('yyyy-MM-dd');
+        var inputFormat = DateFormat('yyyy-MM-dd hh:mm');
         var inputDate = inputFormat.parse(date);
-        var outputFormat = DateFormat('dd/MM/yyyy');
+        var outputFormat = DateFormat('dd/MM/yyyy hh:mm');
         return outputFormat.format(inputDate);
       }
     }
@@ -166,30 +167,39 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
           elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          color: ColorName.selectedColor,
+          color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: TextSpan(
-                      text: getFormatedDate(date),
-                      style: BaseText.blackText16
-                          .copyWith(fontWeight: BaseText.semiBold),
-                      children: const [
-                        // TextSpan(
-                        //   text: ' 11:00',
-                        //   style: BaseText.blackText16
-                        //       .copyWith(fontWeight: BaseText.semiBold),
-                        // )
-                      ]),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                          text: getFormatedDate(date),
+                          style: BaseText.blackText16
+                              .copyWith(fontWeight: BaseText.semiBold),
+                          children: const [
+                            // TextSpan(
+                            //   text: ' 11:00',
+                            //   style: BaseText.blackText16
+                            //       .copyWith(fontWeight: BaseText.semiBold),
+                            // )
+                          ]),
+                    ),
+                    stateBadge(color: ColorName.doneColor, state: item['state'])
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(warehouse, style: BaseText.greyText14),
                 const SizedBox(height: 4),
-                Text(location, style: BaseText.greyText14),
+                Text(location,
+                    style: BaseText.greyText14,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

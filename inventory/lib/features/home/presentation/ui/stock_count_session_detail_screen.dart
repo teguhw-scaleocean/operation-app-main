@@ -24,6 +24,7 @@ import '../../../../shared_libraries/common/constants/resource_constants.dart';
 import '../../../../shared_libraries/common/theme/theme.dart';
 import '../../../../shared_libraries/component/general_dialog.dart';
 import '../../../../shared_libraries/component/loading_widget.dart';
+import '../../../../shared_libraries/component/state_badge_widget.dart';
 import '../cubit/stock_count_line_cubit/stock_count_line_cubit.dart';
 import '../cubit/stock_opname_cubit/stock_count_session_cubit.dart';
 
@@ -251,22 +252,9 @@ class _StockCountSessionDetailScreenState
                                 buildCustomFieldDetail(
                                     title: 'Session',
                                     value: sessionData.name.toString()),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(50),
-                                      color: ColorName.doneColor),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    child: Text(
-                                      sessionData.state
-                                          .toString()
-                                          .toUpperCase(),
-                                      style: BaseText.whiteText12.copyWith(
-                                          fontWeight: BaseText.medium),
-                                    ),
-                                  ),
-                                )
+                                stateBadge(
+                                    color: ColorName.doneColor,
+                                    state: sessionData.state)
                               ],
                             ),
                             const SizedBox(height: 10),

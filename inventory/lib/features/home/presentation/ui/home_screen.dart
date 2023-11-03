@@ -402,14 +402,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         //         .compareTo(a['date_create']));
                                         log("listStockOpname: ${listStockOpname.map((e) => e['date_create']).toList().toString()}");
 
-                                        stockOpname =
-                                            listStockOpname.firstWhere(
-                                                (element) =>
-                                                    element["state"] == "Draft",
-                                                orElse: () =>
-                                                    (listStockOpname.isNotEmpty)
-                                                        ? listStockOpname.first
-                                                        : null);
+                                        stockOpname = listStockOpname.lastWhere(
+                                            (element) =>
+                                                element["state"] == "Draft",
+                                            orElse: () => null);
                                         log("stockOpname: ${stockOpname.toString()}");
                                         if (stockOpname != null) {
                                           timeUnformatted =
@@ -952,40 +948,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                               const SizedBox(height: 32),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.stockSchedule,
-                                      arguments: StockCountSessionArgument(
-                                          userIds: user.id ?? 0,
-                                          warehouseId: (warehouseId == 0)
-                                              ? warehouseInitId
-                                              : warehouseId));
-                                },
-                                child: SizedBox(
-                                  child: Column(
-                                    children: [
-                                      Center(
-                                          child: Text(
-                                        'Lihat semua jadwal',
-                                        style: BaseText.mainTextStyle14
-                                            .copyWith(
-                                                fontWeight: BaseText.semiBold),
-                                      )),
-                                      const SizedBox(height: 6),
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 100),
-                                        child: Divider(
-                                          color: ColorName.mainColor,
-                                          thickness: 3,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 35),
                               // Schedule Date - Current Date
                               InkWell(
                                 onTap: () async {
@@ -1105,6 +1067,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                         //     },
                                         //   ),
                                         ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 35),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.stockSchedule,
+                                      arguments: StockCountSessionArgument(
+                                          userIds: user.id ?? 0,
+                                          warehouseId: (warehouseId == 0)
+                                              ? warehouseInitId
+                                              : warehouseId));
+                                },
+                                child: SizedBox(
+                                  child: Column(
+                                    children: [
+                                      Center(
+                                          child: Text(
+                                        'Lihat semua jadwal',
+                                        style: BaseText.mainTextStyle14
+                                            .copyWith(
+                                                fontWeight: BaseText.semiBold),
+                                      )),
+                                      const SizedBox(height: 6),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 100),
+                                        child: Divider(
+                                          color: ColorName.mainColor,
+                                          thickness: 3,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
