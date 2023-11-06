@@ -439,6 +439,8 @@ class _StockCountSessionDetailScreenState
             // '?????',
             style:
                 BaseText.greyText14.copyWith(color: ColorName.borderNewColor),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
           Row(

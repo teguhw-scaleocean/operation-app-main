@@ -35,6 +35,8 @@ Widget buildCustomFieldDetail({required String title, required String value}) {
               fontWeight: BaseText.medium, color: ColorName.borderNewColor)),
       const SizedBox(height: 4),
       Text(value,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
           style: BaseText.blackText16.copyWith(fontWeight: BaseText.semiBold)),
       const SizedBox(height: 16),
     ],
