@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? countDownTimer;
   Duration duration = const Duration(days: 5);
   bool isSheetOpen = false;
+  bool hasNotification = false;
   late Function sheetSetState;
   late Function sheetState;
   late Timer _timer;
@@ -109,8 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
   /// GIVE start_button navigate to StockSessionDetailScreen with prevent to back
   /// WHEN is Submitted
   /// THEN back to HOME
-  Future<bool> startButtonSession({required int stockSessionId}) async {
-    bool result = false;
+  Future<String> startButtonSession({required int stockSessionId}) async {
+    String result = "";
     log(stockSessionId.toString());
     await context
         .read<StockCountSessionCubit>()
@@ -404,10 +405,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                         stockOpname = listStockOpname.lastWhere(
                                             (element) =>
-                                                element["state"] == "Draft",
+                                                element["state"] != "Done",
                                             orElse: () => null);
                                         log("stockOpname: ${stockOpname.toString()}");
                                         if (stockOpname != null) {
+                                          var successSnackBar = SnackBar(
+                                              backgroundColor:
+                                                  ColorName.doneColor,
+                                              content: Text(
+                                                  'Successfully! get session stock opanme',
+                                                  style: BaseText.whiteText14));
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(successSnackBar);
+
+                                          hasNotification = true;
+                                          log("hasNotification: $hasNotification");
+
                                           timeUnformatted =
                                               stockOpname['date_create']
                                                   .toString()
@@ -568,19 +581,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       // startTimer();
                       _buildStockOpname(context, stockOpname);
                     },
-                    child: SizedBox(
-                      // height: 38.h,
-                      child: Card(
-                        color: ColorName.lightNewGreyColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+                    child: Stack(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: ColorName.mainColor),
+                          child: const Icon(
+                            Icons.notifications_none_outlined,
+                            color: ColorName.whiteColor,
+                          ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(11),
-                          child: Icon(CupertinoIcons.bell,
-                              color: ColorName.whiteColor, size: 16),
+                        Visibility(
+                          visible: hasNotification,
+                          child: Positioned(
+                            right: 9,
+                            top: 9,
+                            child: CircleAvatar(
+                              backgroundColor: ColorName.redColor,
+                              radius: 6,
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: Text("1", style: BaseText.whiteText8),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -867,6 +895,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           .emptyHomeContentStockOp,
                                       style: BaseText.blackText12,
                                       textAlign: TextAlign.center),
+                                  const SizedBox(height: 32),
+                                  _buildViewAllSession(context),
                                   const SizedBox(height: 24),
                                 ],
                               ),
@@ -958,7 +988,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             () => startButtonSession(
                                                 stockSessionId: stockSessionId))
                                         .then((value) {
-                                      if (value) {
+                                      log("value start: $value");
+
+                                      if (value
+                                          .toLowerCase()
+                                          .contains("true")) {
                                         Future.delayed(
                                             const Duration(seconds: 1), () {
                                           var successSnackBar = SnackBar(
@@ -982,16 +1016,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Future.delayed(
                                             const Duration(seconds: 1), () {
                                           var notStartedSnackBar = SnackBar(
-                                              content: Text("Not started yet",
+                                              backgroundColor:
+                                                  ColorName.redColor,
+                                              content: Text(value,
                                                   style: BaseText.whiteText14));
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(notStartedSnackBar);
-                                        });
+                                        }).then(
+                                            (value) async =>
+                                                await Navigator.pushNamed(
+                                                    context,
+                                                    AppRoutes
+                                                        .stockScheduleDetail,
+                                                    arguments:
+                                                        StockSessionDetailArgument(
+                                                            stockSessionLines:
+                                                                stockOpname,
+                                                            isStartedButton:
+                                                                true)));
                                       }
                                     });
                                   } else {
+                                    Navigator.of(context).pop();
                                     var unableToStartSnackBar = SnackBar(
-                                        content: Text('Cannot Start..',
+                                        backgroundColor: ColorName.redColor,
+                                        content: Text('Cannot Start Session..',
                                             style: BaseText.whiteText14));
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(unableToStartSnackBar);
@@ -1071,39 +1120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               const SizedBox(height: 35),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.stockSchedule,
-                                      arguments: StockCountSessionArgument(
-                                          userIds: user.id ?? 0,
-                                          warehouseId: (warehouseId == 0)
-                                              ? warehouseInitId
-                                              : warehouseId));
-                                },
-                                child: SizedBox(
-                                  child: Column(
-                                    children: [
-                                      Center(
-                                          child: Text(
-                                        'Lihat semua jadwal',
-                                        style: BaseText.mainTextStyle14
-                                            .copyWith(
-                                                fontWeight: BaseText.semiBold),
-                                      )),
-                                      const SizedBox(height: 6),
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 100),
-                                        child: Divider(
-                                          color: ColorName.mainColor,
-                                          thickness: 3,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                              _buildViewAllSession(context),
                               const SizedBox(height: 24),
                             ],
                           ),
@@ -1125,6 +1142,38 @@ class _HomeScreenState extends State<HomeScreen> {
       //   isToday = false;
       // });
     });
+  }
+
+  InkWell _buildViewAllSession(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.stockSchedule,
+            arguments: StockCountSessionArgument(
+                userIds: user.id ?? 0,
+                warehouseId:
+                    (warehouseId == 0) ? warehouseInitId : warehouseId));
+      },
+      child: SizedBox(
+        child: Column(
+          children: [
+            Center(
+                child: Text(
+              'Lihat semua jadwal',
+              style: BaseText.mainTextStyle14
+                  .copyWith(fontWeight: BaseText.semiBold),
+            )),
+            const SizedBox(height: 6),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 100),
+              child: Divider(
+                color: ColorName.mainColor,
+                thickness: 3,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildItemOverview(ItemOverview item, SharedPreferences preferences) {

@@ -20,6 +20,8 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
       : super(
             StockCountSessionState(stockCountSessionState: ViewData.initial()));
 
+  // bool isNotification = false;
+
   getStockCountSession(
       {List<int>? userId,
       int? warehouseId,
@@ -63,7 +65,7 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
             stockCountSessionState: ViewData.loaded(data: data))));
   }
 
-  Future<bool> startButtonSession({required int stockSessionId}) async {
+  Future<String> startButtonSession({required int stockSessionId}) async {
     String token =
         sharedPreferences.getString(AppConstants.cachedKey.tokenKey) ?? '';
 
@@ -80,10 +82,15 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
 
     var result = await getStockCountSessionUsecase.call(params);
     return result.fold((failure) {
-      FailureResponse(errorMessage: failure.errorMessage);
-
-      return false;
-    }, (data) => true);
+      return failure.errorMessage;
+    }, (data) {
+      if (!data.toString().contains('error') &&
+          data.toString().contains('result')) {
+        return data["result"].toString();
+      } else {
+        return data["error"]["data"]["message"].toString();
+      }
+    });
     // await Future.delayed(
     //     const Duration(milliseconds: 400), () => result = true);
     // log("result from cubit $result");

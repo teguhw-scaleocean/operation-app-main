@@ -770,397 +770,322 @@ class _OperationScreenState extends State<OperationScreen>
           const SizedBox(width: 12),
           InkWell(
             onTap: () => showModalBottomSheet(
-                isDismissible: true,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20)),
+                ),
                 isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                // shape: RoundedRectangleBorder(
-                //   borderRadius: BorderRadius.only(
-                //       topLeft: Radius.circular(20.w),
-                //       topRight: Radius.circular(20.w)),
-                // ),
+                showDragHandle: true,
                 context: context,
                 builder: (context) {
                   return StatefulBuilder(builder: (context, filterState) {
-                    return DraggableScrollableSheet(
-                        initialChildSize: 0.6,
-                        // minChildSize: 0.15,
-                        // maxChildSize: 1.0,
-                        builder: (_, scrollControllerSheet) {
-                          return Container(
-                            // height: ScreenUtil().screenHeight,
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20)),
-                              color: ColorName.whiteColor,
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: ListView(
-                                shrinkWrap: true,
-                                // physics: const NeverScrollableScrollPhysics(),
-                                controller: scrollControllerSheet,
-                                // mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(height: 16),
-                                  Container(
-                                    height: 6,
-                                    width: double.minPositive,
-                                    margin: EdgeInsets.symmetric(
-                                        horizontal: mediaQuery.width / 3),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(40),
-                                      color: ColorName.lightNewGreyColor,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Filter',
-                                        style: BaseText.mainTextStyle14
-                                            .copyWith(
-                                                fontWeight: BaseText.semiBold),
-                                      ),
-                                      IconButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).maybePop(),
-                                        icon: const Icon(Icons.close,
-                                            color: ColorName.mainColor,
-                                            size: 16),
-                                      )
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                      height:
-                                          12), // Jarak antara title filter dan pilih tanggal terlalu jauh.
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Pilih Tanggal',
-                                        style: BaseText.blackText16.copyWith(
-                                            fontWeight: BaseText.semiBold),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      InkWell(
-                                          onTap: () {
-                                            filterState(() {
-                                              isShowCalendar = true;
-                                            });
-                                          },
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text('Tanggal Mulai',
-                                                  style: BaseText.blackText12),
-                                              const SizedBox(height: 8),
-                                              Row(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        mediaQuery.width / 2.5,
-                                                    decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        color: ColorName
-                                                            .lightGreyColor),
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            12),
-                                                    child: Row(
-                                                      children: [
-                                                        const Icon(
-                                                            Icons.date_range,
-                                                            color: ColorName
-                                                                .blackColor),
-                                                        const SizedBox(
-                                                            width: 10),
-                                                        Text(
-                                                            (selectedStartDate ==
-                                                                    DateTime
-                                                                        .now())
-                                                                ? ''
-                                                                : (selectedStartDate ==
-                                                                        null)
-                                                                    ? DateTime
-                                                                            .now()
-                                                                        .toString()
-                                                                        .substring(
-                                                                            0,
-                                                                            10)
-                                                                    : selectedStartDate
-                                                                        .toString()
-                                                                        .substring(
-                                                                            0,
-                                                                            10),
-                                                            style: BaseText
-                                                                .blackText14
-                                                                .copyWith(
-                                                                    fontWeight:
-                                                                        BaseText
-                                                                            .medium))
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          )),
-                                      const Padding(
-                                        padding: EdgeInsets.only(
-                                            left: 8, right: 8, top: 24),
-                                        child: Icon(Icons.arrow_forward,
-                                            color: ColorName.mainColor),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          filterState(() {
-                                            isShowCalendar = true;
-                                          });
-                                        },
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text('Tanggal Berakhir',
-                                                style: BaseText.blackText12),
-                                            const SizedBox(height: 8),
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  width: mediaQuery.width / 2.5,
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      color: ColorName
-                                                          .lightGreyColor),
-                                                  padding:
-                                                      const EdgeInsets.all(12),
-                                                  child: Row(
-                                                    children: [
-                                                      const Icon(
-                                                          Icons.date_range,
-                                                          color: ColorName
-                                                              .blackColor),
-                                                      const SizedBox(width: 10),
-                                                      Text(
-                                                          (selectedEndDate ==
-                                                                  DateTime
-                                                                      .now())
-                                                              ? ''
-                                                              : (selectedEndDate ==
-                                                                      null)
-                                                                  ? ''
-                                                                  : selectedEndDate
-                                                                      .toString()
-                                                                      .substring(
-                                                                          0,
-                                                                          10),
-                                                          style: BaseText
-                                                              .blackText14
-                                                              .copyWith(
-                                                                  fontWeight:
-                                                                      BaseText
-                                                                          .medium))
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Visibility(
-                                      visible: isShowCalendar,
-                                      child:
-                                          _buildDefaultRangeDatePickerWithValue(
-                                              filterState)),
-                                  const SizedBox(height: 24),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Pilih Urutan',
-                                        style: BaseText.blackText16.copyWith(
-                                            fontWeight: BaseText.semiBold),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  // warna radio button, atau button apapun yang diklick bewarna biru scale ocean #2B5279
-                                  Column(
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        // physics: const NeverScrollableScrollPhysics(),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Filter',
+                                style: BaseText.mainTextStyle14
+                                    .copyWith(fontWeight: BaseText.semiBold),
+                              ),
+                              IconButton(
+                                onPressed: () =>
+                                    Navigator.of(context).maybePop(),
+                                icon: const Icon(Icons.close,
+                                    color: ColorName.mainColor, size: 16),
+                              )
+                            ],
+                          ),
+                          const SizedBox(
+                              height:
+                                  12), // Jarak antara title filter dan pilih tanggal terlalu jauh.
+                          Row(
+                            children: [
+                              Text(
+                                'Pilih Tanggal',
+                                style: BaseText.blackText16
+                                    .copyWith(fontWeight: BaseText.semiBold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              InkWell(
+                                  onTap: () {
+                                    filterState(() {
+                                      isShowCalendar = true;
+                                    });
+                                  },
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
                                     children: [
+                                      Text('Tanggal Mulai',
+                                          style: BaseText.blackText12),
+                                      const SizedBox(height: 8),
                                       Row(
                                         children: [
-                                          Radio(
-                                            value: DateFilter.terbaru,
-                                            groupValue: groupFilter,
-                                            activeColor: ColorName.mainColor,
-                                            onChanged: (value) {
-                                              filterState(() {
-                                                groupFilter = value;
-                                                log(groupFilter.toString());
-                                              });
-                                            },
-                                          ),
-                                          Text(
-                                            'Berdasarkan terbaru',
-                                            style: BaseText.blackText12,
+                                          Container(
+                                            width: mediaQuery.width / 2.5,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                color:
+                                                    ColorName.lightGreyColor),
+                                            padding: const EdgeInsets.all(12),
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.date_range,
+                                                    color:
+                                                        ColorName.blackColor),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                    (selectedStartDate ==
+                                                            DateTime.now())
+                                                        ? ''
+                                                        : (selectedStartDate ==
+                                                                null)
+                                                            ? DateTime.now()
+                                                                .toString()
+                                                                .substring(
+                                                                    0, 10)
+                                                            : selectedStartDate
+                                                                .toString()
+                                                                .substring(
+                                                                    0, 10),
+                                                    style: BaseText.blackText14
+                                                        .copyWith(
+                                                            fontWeight: BaseText
+                                                                .medium))
+                                              ],
+                                            ),
                                           ),
                                         ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Radio(
-                                            value: DateFilter.terlama,
-                                            groupValue: groupFilter,
-                                            activeColor: ColorName.mainColor,
-                                            onChanged: (value) {
-                                              filterState(() {
-                                                groupFilter = value;
-                                                log(groupFilter.toString());
-                                              });
-                                            },
+                                      )
+                                    ],
+                                  )),
+                              const Padding(
+                                padding:
+                                    EdgeInsets.only(left: 8, right: 8, top: 24),
+                                child: Icon(Icons.arrow_forward,
+                                    color: ColorName.mainColor),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  filterState(() {
+                                    isShowCalendar = true;
+                                  });
+                                },
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Tanggal Berakhir',
+                                        style: BaseText.blackText12),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: mediaQuery.width / 2.5,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: ColorName.lightGreyColor),
+                                          padding: const EdgeInsets.all(12),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.date_range,
+                                                  color: ColorName.blackColor),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                  (selectedEndDate ==
+                                                          DateTime.now())
+                                                      ? ''
+                                                      : (selectedEndDate ==
+                                                              null)
+                                                          ? ''
+                                                          : selectedEndDate
+                                                              .toString()
+                                                              .substring(0, 10),
+                                                  style: BaseText.blackText14
+                                                      .copyWith(
+                                                          fontWeight:
+                                                              BaseText.medium))
+                                            ],
                                           ),
-                                          Text('Berdasarkan terlama',
-                                              style: BaseText.blackText12),
-                                        ],
-                                      ),
-                                    ],
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Visibility(
+                              visible: isShowCalendar,
+                              child: _buildDefaultRangeDatePickerWithValue(
+                                  filterState)),
+                          Row(
+                            children: [
+                              Text(
+                                'Pilih Urutan',
+                                style: BaseText.blackText16
+                                    .copyWith(fontWeight: BaseText.semiBold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          // warna radio button, atau button apapun yang diklick bewarna biru scale ocean #2B5279
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Radio(
+                                    value: DateFilter.terbaru,
+                                    groupValue: groupFilter,
+                                    activeColor: ColorName.mainColor,
+                                    onChanged: (value) {
+                                      filterState(() {
+                                        groupFilter = value;
+                                        log(groupFilter.toString());
+                                      });
+                                    },
                                   ),
-                                  const SizedBox(height: 25),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          if (tabIndex == 0) {
-                                            setState(() {
-                                              listResult.clear();
-                                              listResult.addAll(listResultTemp);
-                                              log("listResult after: ${listResult.map((e) => e).toList()}");
-                                            });
-                                          } else if (tabIndex == 1) {
-                                            setState(() {
-                                              listResultReady.clear();
-                                              listResultReady
-                                                  .addAll(listResultReadyTemp);
-                                              log("listResultReady after: ${listResultReady.map((e) => e).toList()}");
-                                            });
-                                          } else if (tabIndex == 2) {
-                                            setState(() {
-                                              listResultWaiting.clear();
-                                              listResultWaiting.addAll(
-                                                  listResultWaitingTemp);
-                                              log("listResultWaiting after: ${listResultWaiting.map((e) => e).toList()}");
-                                            });
-                                          } else if (tabIndex == 3) {
-                                            setState(() {
-                                              listResultLate.clear();
-                                              listResultLate
-                                                  .addAll(listResultLateTemp);
-                                              log("listResultLate after: ${listResultLate.map((e) => e).toList()}");
-                                            });
-                                          } else if (tabIndex == 4) {
-                                            setState(() {
-                                              listResultBackOrder.clear();
-                                              listResultBackOrder.addAll(
-                                                  listResultBackOrderTemp);
-                                              log("listResultBackOrder after: ${listResultBackOrder.map((e) => e).toList()}");
-                                            });
-                                          }
-                                        },
-                                        child: SecondaryButton(
-                                            height: 36,
-                                            width: mediaQuery.width / 2.3,
-                                            title: 'Reset'),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          // selectedStartDate =
-                                          //     DateTime.utc(2023, 07, 05);
-                                          log("start value $selectedStartDate");
-                                          // selectedEndDate =
-                                          //     DateTime.utc(2023, 07, 06);
-                                          log("end value $selectedEndDate");
-                                          if (tabIndex == 0) {
-                                            filterOperation(
-                                                list: listResult,
-                                                selectedStartDate:
-                                                    selectedStartDate,
-                                                selectedEndDate:
-                                                    selectedEndDate);
-                                          } else if (tabIndex == 1) {
-                                            filterOperation(
-                                                list: listResultReady,
-                                                selectedStartDate:
-                                                    selectedStartDate,
-                                                selectedEndDate:
-                                                    selectedEndDate);
-                                          } else if (tabIndex == 2) {
-                                            filterOperation(
-                                                list: listResultWaiting,
-                                                selectedStartDate:
-                                                    selectedStartDate,
-                                                selectedEndDate:
-                                                    selectedEndDate);
-                                          } else if (tabIndex == 3) {
-                                            filterOperation(
-                                                list: listResultLate,
-                                                selectedStartDate:
-                                                    selectedStartDate,
-                                                selectedEndDate:
-                                                    selectedEndDate);
-                                          } else {
-                                            filterOperation(
-                                                list: listResultBackOrder,
-                                                selectedStartDate:
-                                                    selectedStartDate,
-                                                selectedEndDate:
-                                                    selectedEndDate);
-                                          }
-                                          // filterState(() {});
-                                          // filterState(() {});
-                                          // setState(() {});
-                                          groupFilter = null;
-                                          Navigator.of(context).maybePop();
-                                        },
-                                        child: PrimaryButton(
-                                            height: 36,
-                                            width: mediaQuery.width / 2.3,
-                                            title: 'Simpan'),
-                                      ),
-                                    ],
+                                  Text(
+                                    'Berdasarkan terbaru',
+                                    style: BaseText.blackText12,
                                   ),
-                                  const SizedBox(height: 35),
                                 ],
                               ),
-                            ),
-                          );
-                        });
+                              Row(
+                                children: [
+                                  Radio(
+                                    value: DateFilter.terlama,
+                                    groupValue: groupFilter,
+                                    activeColor: ColorName.mainColor,
+                                    onChanged: (value) {
+                                      filterState(() {
+                                        groupFilter = value;
+                                        log(groupFilter.toString());
+                                      });
+                                    },
+                                  ),
+                                  Text('Berdasarkan terlama',
+                                      style: BaseText.blackText12),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 25),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  if (tabIndex == 0) {
+                                    setState(() {
+                                      listResult.clear();
+                                      listResult.addAll(listResultTemp);
+                                      log("listResult after: ${listResult.map((e) => e).toList()}");
+                                    });
+                                  } else if (tabIndex == 1) {
+                                    setState(() {
+                                      listResultReady.clear();
+                                      listResultReady
+                                          .addAll(listResultReadyTemp);
+                                      log("listResultReady after: ${listResultReady.map((e) => e).toList()}");
+                                    });
+                                  } else if (tabIndex == 2) {
+                                    setState(() {
+                                      listResultWaiting.clear();
+                                      listResultWaiting
+                                          .addAll(listResultWaitingTemp);
+                                      log("listResultWaiting after: ${listResultWaiting.map((e) => e).toList()}");
+                                    });
+                                  } else if (tabIndex == 3) {
+                                    setState(() {
+                                      listResultLate.clear();
+                                      listResultLate.addAll(listResultLateTemp);
+                                      log("listResultLate after: ${listResultLate.map((e) => e).toList()}");
+                                    });
+                                  } else if (tabIndex == 4) {
+                                    setState(() {
+                                      listResultBackOrder.clear();
+                                      listResultBackOrder
+                                          .addAll(listResultBackOrderTemp);
+                                      log("listResultBackOrder after: ${listResultBackOrder.map((e) => e).toList()}");
+                                    });
+                                  }
+                                },
+                                child: SecondaryButton(
+                                    height: 36,
+                                    width: mediaQuery.width / 2.3,
+                                    title: 'Reset'),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  // selectedStartDate =
+                                  //     DateTime.utc(2023, 07, 05);
+                                  log("start value $selectedStartDate");
+                                  // selectedEndDate =
+                                  //     DateTime.utc(2023, 07, 06);
+                                  log("end value $selectedEndDate");
+                                  if (tabIndex == 0) {
+                                    filterOperation(
+                                        list: listResult,
+                                        selectedStartDate: selectedStartDate,
+                                        selectedEndDate: selectedEndDate);
+                                  } else if (tabIndex == 1) {
+                                    filterOperation(
+                                        list: listResultReady,
+                                        selectedStartDate: selectedStartDate,
+                                        selectedEndDate: selectedEndDate);
+                                  } else if (tabIndex == 2) {
+                                    filterOperation(
+                                        list: listResultWaiting,
+                                        selectedStartDate: selectedStartDate,
+                                        selectedEndDate: selectedEndDate);
+                                  } else if (tabIndex == 3) {
+                                    filterOperation(
+                                        list: listResultLate,
+                                        selectedStartDate: selectedStartDate,
+                                        selectedEndDate: selectedEndDate);
+                                  } else {
+                                    filterOperation(
+                                        list: listResultBackOrder,
+                                        selectedStartDate: selectedStartDate,
+                                        selectedEndDate: selectedEndDate);
+                                  }
+                                  // filterState(() {});
+                                  // filterState(() {});
+                                  // setState(() {});
+                                  groupFilter = null;
+                                  Navigator.of(context).maybePop();
+                                },
+                                child: PrimaryButton(
+                                    height: 36,
+                                    width: mediaQuery.width / 2.3,
+                                    title: 'Simpan'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    );
                   });
                 }),
             child: Padding(
@@ -1238,7 +1163,7 @@ class _OperationScreenState extends State<OperationScreen>
                     config.calendarType, _rangeDatePickerValueWithDefaultValue);
               });
             }),
-        const SizedBox(height: 10),
+        // const SizedBox(height: 10),
         // Row(
         //   mainAxisSize: MainAxisSize.min,
         //   children: [
@@ -1252,7 +1177,7 @@ class _OperationScreenState extends State<OperationScreen>
         //     ),
         //   ],
         // ),
-        const SizedBox(height: 25),
+        // const SizedBox(height: 25),
       ],
     );
   }

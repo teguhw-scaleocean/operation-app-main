@@ -90,6 +90,7 @@ class BaseText {
   static TextStyle greyText18 = greyTextStyle.copyWith(fontSize: 18);
 
   //// White Text Size
+  static TextStyle whiteText8 = whiteTextStyle.copyWith(fontSize: 8);
   static TextStyle whiteText10 = whiteTextStyle.copyWith(fontSize: 10);
   static TextStyle whiteText12 = whiteTextStyle.copyWith(fontSize: 12);
   static TextStyle whiteText14 = whiteTextStyle.copyWith(fontSize: 14);

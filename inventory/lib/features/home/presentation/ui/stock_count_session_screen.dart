@@ -141,6 +141,16 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
 
   Widget _buildItemStockSchedule(
       item, dynamic date, dynamic location, dynamic warehouse, int sessionId) {
+    Color color;
+    if (item['state'].toString().toLowerCase().contains('in progress')) {
+      color = ColorName.backOrderColor;
+    } else if (item['state'].toString().toLowerCase().contains('submitted')) {
+      color = ColorName.readyColor;
+    } else if (item['state'].toString().toLowerCase().contains('done')) {
+      color = ColorName.doneColor;
+    } else {
+      color = ColorName.greyColor;
+    }
     // StockSessionLines sessionItem = item;
     log("sessionItem===${item.toString()}");
     // String dateFormatted = '';
@@ -190,7 +200,7 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
                             // )
                           ]),
                     ),
-                    stateBadge(color: ColorName.doneColor, state: item['state'])
+                    stateBadge(color: color, state: item['state'])
                   ],
                 ),
                 const SizedBox(height: 8),
