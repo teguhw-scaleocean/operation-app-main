@@ -1121,7 +1121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 35),
+                              const SizedBox(height: 16),
                               _buildViewAllSession(context),
                               const SizedBox(height: 24),
                             ],
@@ -1157,19 +1157,16 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: SizedBox(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Center(
-                child: Text(
-              'Lihat semua jadwal',
-              style: BaseText.mainTextStyle14
-                  .copyWith(fontWeight: BaseText.semiBold),
-            )),
-            const SizedBox(height: 6),
+                child: Text('Lihat semua jadwal',
+                    style: BaseText.mainTextStyle14)),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 100),
+              padding: EdgeInsets.symmetric(horizontal: 110),
               child: Divider(
                 color: ColorName.mainColor,
-                thickness: 3,
+                thickness: 1.5,
               ),
             ),
           ],
