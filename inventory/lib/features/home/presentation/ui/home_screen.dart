@@ -404,8 +404,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         log("listStockOpname: ${listStockOpname.map((e) => e['date_create']).toList().toString()}");
 
                                         stockOpname = listStockOpname.lastWhere(
-                                            (element) =>
-                                                element["state"] != "Done",
+                                            (element) => element["state"]
+                                                .toString()
+                                                .toLowerCase()
+                                                .contains("draft"),
                                             orElse: () => null);
                                         log("stockOpname: ${stockOpname.toString()}");
                                         if (stockOpname != null) {
@@ -1150,8 +1152,8 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.pushNamed(context, AppRoutes.stockSchedule,
             arguments: StockCountSessionArgument(
                 userIds: user.id ?? 0,
-                warehouseId:
-                    (warehouseId == 0) ? warehouseInitId : warehouseId));
+                warehouseId: (warehouseId == 0) ? warehouseInitId : warehouseId,
+                isStartedButton: false));
       },
       child: SizedBox(
         child: Column(

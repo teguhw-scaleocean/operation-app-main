@@ -2,9 +2,11 @@
 class StockCountSessionArgument {
   int userIds;
   int warehouseId;
+  bool isStartedButton;
 
   StockCountSessionArgument({
     required this.userIds,
     required this.warehouseId,
+    required this.isStartedButton,
   });
 }

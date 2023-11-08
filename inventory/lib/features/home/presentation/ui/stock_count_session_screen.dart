@@ -63,7 +63,15 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
           preferredSize: const Size.fromHeight(58),
           child: AppBar(
             leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () async {
+                if (widget.stockCountSessionArgument.isStartedButton) {
+                  await Navigator.pushNamedAndRemoveUntil(
+                      context, AppRoutes.home, (route) => false,
+                      arguments: false);
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
               icon: const Icon(
                 Icons.arrow_back_ios_new,
                 color: ColorName.blackColor,
