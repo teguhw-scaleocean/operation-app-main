@@ -39,6 +39,10 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
     log(widget.stockCountSessionArgument.userIds.toString());
     log(widget.stockCountSessionArgument.warehouseId.toString());
 
+    _onRefresh();
+  }
+
+  Future<void> _onRefresh() async {
     if (widget.stockCountSessionArgument.userIds != 0 &&
         widget.stockCountSessionArgument.warehouseId != 0) {
       Future.delayed(const Duration(milliseconds: 100), getStockCountSession);
@@ -57,90 +61,94 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
   Widget build(BuildContext context) {
     mediaQuery = MediaQuery.of(context).size;
     return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorName.lightGreyColor,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(58),
-          child: AppBar(
-            leading: IconButton(
-              onPressed: () async {
-                if (widget.stockCountSessionArgument.isStartedButton) {
-                  await Navigator.pushNamedAndRemoveUntil(
-                      context, AppRoutes.home, (route) => false,
-                      arguments: false);
-                } else {
-                  Navigator.of(context).pop();
+      child: RefreshIndicator(
+        color: ColorName.mainColor,
+        onRefresh: _onRefresh,
+        child: Scaffold(
+          backgroundColor: ColorName.lightGreyColor,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(58),
+            child: AppBar(
+              leading: IconButton(
+                onPressed: () async {
+                  if (widget.stockCountSessionArgument.isStartedButton) {
+                    await Navigator.pushNamedAndRemoveUntil(
+                        context, AppRoutes.home, (route) => false,
+                        arguments: false);
+                  } else {
+                    Navigator.of(context).pop();
+                  }
+                },
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: ColorName.blackColor,
+                  size: 16,
+                ),
+              ),
+              centerTitle: true,
+              title: Text('Sessions',
+                  style: BaseText.blackText16
+                      .copyWith(fontWeight: BaseText.semiBold)),
+              backgroundColor: ColorName.whiteColor,
+              elevation: 1,
+            ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: BlocConsumer<StockCountSessionCubit, StockCountSessionState>(
+              listener: (context, state) {
+                final status = state.stockCountSessionState.status;
+
+                if (status.isError) {
+                  var errorSnackBar = SnackBar(
+                      content: Text(
+                          'Error ${state.stockCountSessionState.failure?.errorMessage}',
+                          style: BaseText.whiteText14));
+                  ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+                } else if (status.isHasData) {
+                  listStockOpname =
+                      state.stockCountSessionState.data['result'] ?? [];
+                  listStockOpname.removeWhere(
+                      (element) => element['date_create'] == false);
+                  listStockOpname.sort(
+                      (a, b) => b['date_create'].compareTo(a['date_create']));
+                  log("listStockOpname: ${listStockOpname.map((e) => jsonEncode(e)).toList().toString()}");
                 }
               },
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                color: ColorName.blackColor,
-                size: 16,
-              ),
+              builder: (context, state) {
+                final status = state.stockCountSessionState.status;
+
+                if (status.isHasData) {
+                  return SizedBox(
+                      height: mediaQuery.height,
+                      child: ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: listStockOpname.length,
+                          itemBuilder: (context, index) {
+                            var item = listStockOpname[index];
+
+                            final idSession = item['id'];
+                            var date = (item['date_create'] == false)
+                                ? ''
+                                : item['date_create'];
+                            var locationStock = (item['location_name'] == false)
+                                ? ''
+                                : item['location_name'];
+                            var warehouse = (item['warehouse_name'] == false)
+                                ? ''
+                                : item['warehouse_name'];
+
+                            return _buildItemStockSchedule(item, date,
+                                locationStock, warehouse, idSession);
+                          }));
+                } else if (status.isError) {
+                  return Text(
+                      state.stockCountSessionState.failure?.errorMessage ?? '');
+                } else {
+                  return buildEmptyResultOperation(context);
+                }
+              },
             ),
-            centerTitle: true,
-            title: Text('Sessions',
-                style: BaseText.blackText16
-                    .copyWith(fontWeight: BaseText.semiBold)),
-            backgroundColor: ColorName.whiteColor,
-            elevation: 1,
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: BlocConsumer<StockCountSessionCubit, StockCountSessionState>(
-            listener: (context, state) {
-              final status = state.stockCountSessionState.status;
-
-              if (status.isError) {
-                var errorSnackBar = SnackBar(
-                    content: Text(
-                        'Error ${state.stockCountSessionState.failure?.errorMessage}',
-                        style: BaseText.whiteText14));
-                ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
-              } else if (status.isHasData) {
-                listStockOpname =
-                    state.stockCountSessionState.data['result'] ?? [];
-                listStockOpname
-                    .removeWhere((element) => element['date_create'] == false);
-                listStockOpname.sort(
-                    (a, b) => b['date_create'].compareTo(a['date_create']));
-                log("listStockOpname: ${listStockOpname.map((e) => jsonEncode(e)).toList().toString()}");
-              }
-            },
-            builder: (context, state) {
-              final status = state.stockCountSessionState.status;
-
-              if (status.isHasData) {
-                return SizedBox(
-                    height: mediaQuery.height,
-                    child: ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: listStockOpname.length,
-                        itemBuilder: (context, index) {
-                          var item = listStockOpname[index];
-
-                          final idSession = item['id'];
-                          var date = (item['date_create'] == false)
-                              ? ''
-                              : item['date_create'];
-                          var locationStock = (item['location_name'] == false)
-                              ? ''
-                              : item['location_name'];
-                          var warehouse = (item['warehouse_name'] == false)
-                              ? ''
-                              : item['warehouse_name'];
-
-                          return _buildItemStockSchedule(
-                              item, date, locationStock, warehouse, idSession);
-                        }));
-              } else if (status.isError) {
-                return Text(
-                    state.stockCountSessionState.failure?.errorMessage ?? '');
-              } else {
-                return buildEmptyResultOperation(context);
-              }
-            },
           ),
         ),
       ),
@@ -151,16 +159,18 @@ class _StockCountSessionScreenState extends State<StockCountSessionScreen> {
       item, dynamic date, dynamic location, dynamic warehouse, int sessionId) {
     Color color;
     if (item['state'].toString().toLowerCase().contains('in progress')) {
-      color = ColorName.backOrderColor;
+      color = ColorName.homeOrangeColor;
     } else if (item['state'].toString().toLowerCase().contains('submitted')) {
       color = ColorName.readyColor;
     } else if (item['state'].toString().toLowerCase().contains('done')) {
       color = ColorName.doneColor;
+    } else if (item['state'].toString().toLowerCase().contains('cancel')) {
+      color = ColorName.yellowCancelColor;
     } else {
       color = ColorName.greyColor;
     }
     // StockSessionLines sessionItem = item;
-    log("sessionItem===${item.toString()}");
+    // log("sessionItem===${item.toString()}");
     // String dateFormatted = '';
 
     getFormatedDate(date) {
