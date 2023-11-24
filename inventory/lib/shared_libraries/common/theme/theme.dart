@@ -33,7 +33,7 @@ class ColorName {
   // ready warna biru, done warna hijau
   static const Color readyColor = Color(0xff1798EE);
   static const Color waitingColor = Color(0xffFFAB00);
-  static const Color yellowCancelColor = Color(0xffE2BF06);
+  static const Color yellowCancelColor = Color(0xffFFE400);
   static const Color lateColor = Color(0xffED2000);
   static const Color backOrderColor = Color(0xffFF8A14);
   static const Color gradient1Color = Color(0xFF2B5279);
