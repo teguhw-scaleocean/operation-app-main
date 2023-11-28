@@ -15,6 +15,7 @@ class StockSessionLines {
   dynamic stockCountName;
   dynamic locationId;
   dynamic locationName;
+  dynamic productCategory;
   dynamic warehouseId;
   dynamic warehouseName;
   bool? useScanner;
@@ -34,6 +35,7 @@ class StockSessionLines {
     this.stockCountName,
     this.locationId,
     this.locationName,
+    this.productCategory,
     this.warehouseId,
     this.warehouseName,
     this.useScanner,
@@ -55,6 +57,7 @@ class StockSessionLines {
         stockCountName: json["stock_count_name"],
         locationId: json["location_id"],
         locationName: json["location_name"],
+        productCategory: json["product_category"],
         warehouseId: json["warehouse_id"],
         warehouseName: json["warehouse_name"],
         useScanner: json["use_scanner"],
@@ -81,6 +84,7 @@ class StockSessionLines {
         "stock_count_name": stockCountName,
         "location_id": locationId,
         "location_name": locationName,
+        "product_category": productCategory,
         "warehouse_id": warehouseId,
         "warehouse_name": warehouseName,
         "use_scanner": useScanner,
