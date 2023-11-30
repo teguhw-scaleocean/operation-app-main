@@ -312,13 +312,14 @@ class _StockCountSessionDetailScreenState
                               ],
                             ),
                             const SizedBox(height: 10),
+                            (sessionData.locationName.toString().isEmpty && sessionData.productCategory.toString().toLowerCase().contains("false")) ? const SizedBox() :
                             (sessionData.locationName.toString().isEmpty)
                                 ? buildCustomFieldDetail(
                                     title: 'Product Category',
-                                    value: sessionData.productCategory)
+                                    value: sessionData.productCategory.toString()) 
                                 : buildCustomFieldDetail(
                                     title: 'Location',
-                                    value: sessionData.locationName),
+                                    value: sessionData.locationName.toString()),
                             const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,

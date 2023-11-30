@@ -944,16 +944,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                               false)
                                       ? ''
                                       : stockOpname['warehouse_name']),
-                              (stockOpname['location_name'].toString().isEmpty)
-                                  ? buildCustomFieldDetail(
-                                      title: 'Product Category',
-                                      value: stockOpname['product_category'],
-                                    )
-                                  : buildCustomFieldDetail(
-                                      title: 'Location Stock',
-                                      // value: "itemStockScheduled['location_id'][1]",
-                                      value: stockOpname['location_name']),
-                              //  buildCustomField(title: 'Address', value: stockOpname[''])   ,
+                               buildCustomFieldDetail(
+                                      title: (stockOpname == null) ? "" : (stockOpname['location_name'].toString().isEmpty)
+                                  ? 'Product Category' : 'Location Stock' ,
+                                      value: (stockOpname == null) ? "" : (stockOpname['location_name'].toString().isEmpty)
+                                  ? stockOpname['product_category'] : stockOpname['location_name']),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
