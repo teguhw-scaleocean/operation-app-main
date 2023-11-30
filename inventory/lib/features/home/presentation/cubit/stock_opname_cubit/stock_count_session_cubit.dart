@@ -86,9 +86,16 @@ class StockCountSessionCubit extends Cubit<StockCountSessionState> {
     }, (data) {
       if (!data.toString().contains('error') &&
           data.toString().contains('result')) {
+        // Success with result
         return data["result"].toString();
+      } else if (!data.toString().contains('error') &&
+          !data.toString().contains('result')) {
+        // Success Empty
+        return "true";
       } else {
-        return data["error"]["data"]["message"].toString();
+        // Failure with error
+        return data["error"]["data"]["message"]
+            .toString(); 
       }
     });
     // await Future.delayed(
