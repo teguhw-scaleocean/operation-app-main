@@ -678,7 +678,7 @@ class _OperationDetailScreenState extends State<OperationDetailScreen> {
                   ),
                 ),
                 hintText: 'Masukkan barcode',
-                hintStyle: BaseText.greyText14,
+                hintStyle: BaseText.greyText14.copyWith(color: ColorName.newGreyColor),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 suffixIcon: Container(

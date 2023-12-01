@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,13 +29,10 @@ class OperationCubit extends Cubit<OperationState> {
           operationBackOrderState: ViewData.initial(),
         ));
 
+  bool isNoData = false;
+
   getOperationList({required int pickingTypeId}) async {
-    emit(OperationState(
-      operationState: ViewData.loading(),
-      operationReadyState: ViewData.noData(message: 'No Data'),
-      operationWaitingState: ViewData.noData(message: 'No Data'),
-      operationBackOrderState: ViewData.noData(message: 'No Data'),
-    ));
+    emit(state.copyWith(operationState: ViewData.loading(message: "loading")));
 
     String token =
         sharedPreferences.getString(AppConstants.cachedKey.tokenKey) ?? '';
@@ -44,21 +43,19 @@ class OperationCubit extends Cubit<OperationState> {
     var result = await getOperationUsecase.call(params);
 
     return result.fold(
-        (failure) => emit(OperationState(
+        (failure) => emit(state.copyWith(
               operationState: ViewData.error(
                   message: failure.errorMessage, failure: failure),
-              operationReadyState: ViewData.noData(message: 'No Data'),
-              operationWaitingState: ViewData.noData(message: 'No Data'),
-              operationBackOrderState: ViewData.noData(message: 'No Data'),
-            )),
-        (data) => emit(
-              OperationState(
-                operationState: ViewData.loaded(data: data),
-                operationReadyState: ViewData.noData(message: 'No Data'),
-                operationWaitingState: ViewData.noData(message: 'No Data'),
-                operationBackOrderState: ViewData.noData(message: 'No Data'),
-              ),
-            ));
+            )), (data) {
+      if (data.result.isNotEmpty) {
+        emit(state.copyWith(operationState: ViewData.loaded(data: data)));
+      } else if (data.result.isEmpty) {
+        // emit(
+        //   state.copyWith(operationState: ViewData.noData(message: "Empty Result"))
+        // );
+        isNoData = true;
+      }
+    });
   }
 
   getOperationReadyList({required int pickingTypeId}) async {
