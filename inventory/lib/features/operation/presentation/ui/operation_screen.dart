@@ -56,6 +56,7 @@ class _OperationScreenState extends State<OperationScreen>
   SharedPreferences preferences = sl();
   final LoadingOverlay _loadingOverlay = LoadingOverlay();
   bool isShowCalendar = false;
+  bool isIgnore = true;
   late Timer _timerOperation;
   late Timer _timerOperationReady;
   late Timer _timerOperationWaiting;
@@ -152,14 +153,24 @@ class _OperationScreenState extends State<OperationScreen>
   @override
   void initState() {
     super.initState();
-    getOperation(pickingTypeId: widget.argument.pickingTypeId);
-    getOperationReady(pickingTypeId: widget.argument.pickingTypeId);
-    getOperationWaiting(pickingTypeId: widget.argument.pickingTypeId);
-    getOperationBackOrder(pickingTypeId: widget.argument.pickingTypeId);
+    _onInitOperation().then((value) {
+      isIgnore = value;
+
+      log("isIgnore: ${isIgnore.toString()}");
+    });
 
     _tabController = TabController(length: 5, vsync: this);
 
     _tabController.animateTo(0);
+  }
+
+  Future<bool> _onInitOperation() async {
+    await getOperation(pickingTypeId: widget.argument.pickingTypeId);
+    await getOperationReady(pickingTypeId: widget.argument.pickingTypeId);
+    await getOperationWaiting(pickingTypeId: widget.argument.pickingTypeId);
+    await getOperationBackOrder(pickingTypeId: widget.argument.pickingTypeId);
+
+    return false;
   }
 
   @override
@@ -232,508 +243,554 @@ class _OperationScreenState extends State<OperationScreen>
       },
       child: SafeArea(
         maintainBottomViewPadding: true,
-        child: Scaffold(
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(155),
-            child: AppBar(
-              leading: Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 20),
-                  child: IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(
-                        Icons.arrow_back_ios,
-                        color: ColorName.blackColor,
-                        size: 16,
-                      ))),
-              centerTitle: true,
-              title: Column(
-                children: [
-                  buildTitleAppBar(context, widget.argument.titleAppbar),
-                ],
-              ),
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(40),
-                child: Column(
+        child: IgnorePointer(
+          ignoring: isIgnore,
+          child: Scaffold(
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(155),
+              child: AppBar(
+                leading: Padding(
+                    padding: const EdgeInsets.only(top: 16, left: 20),
+                    child: IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: ColorName.blackColor,
+                          size: 16,
+                        ))),
+                centerTitle: true,
+                title: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: buildSearchFilter(context, _tabController.index),
-                    ),
-                    TabBar(
-                        // FIX: Tab indicator mentok tanpa padding
-                        // inventory-v1.0.12-1
-                        padding: const EdgeInsets.symmetric(horizontal: 0),
-                        isScrollable: true,
-                        indicatorColor: ColorName.mainColor,
-                        // indicatorPadding: const EdgeInsets.only(bottom: 10),
-                        labelPadding: const EdgeInsets.only(
-                            bottom: 12, right: 10, left: 10),
-                        labelColor: ColorName.mainColor,
-                        unselectedLabelColor: ColorName.greyColor,
-                        labelStyle: BaseText.mainTextStyle14
-                            .copyWith(fontWeight: BaseText.semiBold),
-                        //Pada tab, yang tidak di klik tidak di bold
-                        unselectedLabelStyle: BaseText.greyText14.copyWith(
-                            fontWeight: BaseText.regular,
-                            color: Colors.grey[850]),
-                        controller: _tabController,
-                        onTap: (int i) {
-                          setState(() {});
-                        },
-                        tabs: [
-                          Text('Semua (${listResult.length})'),
-                          Text('Ready (${listResultReady.length})'),
-                          Text('Menunggu (${listResultWaiting.length})'),
-                          Text('Terlambat (${listResultLate.length})'),
-                          Text('Backorder (${listResultBackOrder.length})')
-                        ]),
+                    buildTitleAppBar(context, widget.argument.titleAppbar),
                   ],
                 ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(40),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: buildSearchFilter(context, _tabController.index),
+                      ),
+                      TabBar(
+                          // FIX: Tab indicator mentok tanpa padding
+                          // inventory-v1.0.12-1
+                          padding: const EdgeInsets.symmetric(horizontal: 0),
+                          isScrollable: true,
+                          indicatorColor: ColorName.mainColor,
+                          // indicatorPadding: const EdgeInsets.only(bottom: 10),
+                          labelPadding: const EdgeInsets.only(
+                              bottom: 12, right: 10, left: 10),
+                          labelColor: ColorName.mainColor,
+                          unselectedLabelColor: ColorName.greyColor,
+                          labelStyle: BaseText.mainTextStyle14
+                              .copyWith(fontWeight: BaseText.semiBold),
+                          //Pada tab, yang tidak di klik tidak di bold
+                          unselectedLabelStyle: BaseText.greyText14.copyWith(
+                              fontWeight: BaseText.regular,
+                              color: Colors.grey[850]),
+                          controller: _tabController,
+                          onTap: (int i) {
+                            setState(() {});
+                          },
+                          tabs: [
+                            Text('Semua (${listResult.length})'),
+                            Text('Ready (${listResultReady.length})'),
+                            Text('Menunggu (${listResultWaiting.length})'),
+                            Text('Terlambat (${listResultLate.length})'),
+                            Text('Backorder (${listResultBackOrder.length})')
+                          ]),
+                    ],
+                  ),
+                ),
+                backgroundColor: ColorName.whiteColor,
               ),
-              backgroundColor: ColorName.whiteColor,
             ),
-          ),
-          body: BlocListener<OperationCubit, OperationState>(
-              // bloc: context.read<OperationCubit>(),
-              listener: (context, state) {
-            final status = state.operationState.status;
-            final statusReady = state.operationReadyState.status;
-            final statusWaiting = state.operationWaitingState.status;
-            final statusBackOrder = state.operationBackOrderState.status;
+            body: BlocListener<OperationCubit, OperationState>(
+                // bloc: context.read<OperationCubit>(),
+                listener: (context, state) {
+              final status = state.operationState.status;
+              final statusReady = state.operationReadyState.status;
+              final statusWaiting = state.operationWaitingState.status;
+              final statusBackOrder = state.operationBackOrderState.status;
 
-            if (status.isLoading) {
-              _loadingOverlay.show(context);
-            } else if (status.isError) {
-              // final errorStatus =
-              //     state.operationState.failure?.errorMessage;
-              // if (errorStatus
-              //     .toString()
-              //     .toLowerCase()
-              //     .contains('500')) {
-              errorDialog(
-                      context, "Opss Gagal", "Gagal memuat, silahkan coba lagi")
-                  .then(
-                      (value) => Future.delayed(const Duration(seconds: 4), () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          }));
-              // }
-            } else if (status.isHasData) {
-              _loadingOverlay.hide();
-              setState(() {});
-              final listResponse = state.operationState.data?.result;
+              if (status.isError) {
+                // final errorStatus =
+                //     state.operationState.failure?.errorMessage;
+                // if (errorStatus
+                //     .toString()
+                //     .toLowerCase()
+                //     .contains('500')) {
+                errorDialog(context, "Opss Gagal",
+                        "Gagal memuat, silahkan coba lagi")
+                    .then((value) =>
+                        Future.delayed(const Duration(seconds: 4), () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        }));
+                // }
+              } else if (status.isHasData) {
+                _loadingOverlay.hide();
+                setState(() {});
+                final listResponse = state.operationState.data?.result;
 
-              int difference = 0;
-              if (listResponse != null) {
-                listResult.clear();
-                listOperation = listResponse.map((item) {
-                  final scheduleDate = item['scheduled_date'];
-                  final scheduleDateTime = DateTime.parse(scheduleDate);
-                  difference = daysBetween(scheduleDateTime, DateTime.now());
+                int difference = 0;
+                if (listResponse != null) {
+                  listResult.clear();
+                  listOperation = listResponse.map((item) {
+                    final scheduleDate = item['scheduled_date'];
+                    final scheduleDateTime = DateTime.parse(scheduleDate);
+                    difference = daysBetween(scheduleDateTime, DateTime.now());
 
-                  bool isLate = (difference > 0) ? true : false;
-                  bool isBackOrder =
-                      (item['backorder_id'] != false) ? true : false;
-                  String statusConverted = "";
+                    bool isLate = (difference > 0) ? true : false;
+                    bool isBackOrder =
+                        (item['backorder_id'] != false) ? true : false;
+                    String statusConverted = "";
 
-                  if (!isBackOrder && !isLate && item['state'] == "assigned") {
-                    // Ready
-                    statusConverted = "Ready";
-                  } else if (!isBackOrder && item['state'] == "confirmed") {
-                    // Waiting
-                    statusConverted = "Waiting";
-                  } else if (!isBackOrder && isLate) {
-                    // Terlambat
-                    statusConverted = "Terlambat";
-                  } else if (isBackOrder) {
-                    // Back Order
-                    statusConverted = "Back Order";
+                    if (!isBackOrder &&
+                        !isLate &&
+                        item['state'] == "assigned") {
+                      // Ready
+                      statusConverted = "Ready";
+                    } else if (!isBackOrder && item['state'] == "confirmed") {
+                      // Waiting
+                      statusConverted = "Waiting";
+                    } else if (!isBackOrder && isLate) {
+                      // Terlambat
+                      statusConverted = "Terlambat";
+                    } else if (isBackOrder) {
+                      // Back Order
+                      statusConverted = "Back Order";
+                    }
+
+                    return OperationType(
+                        pickingId: item['id'],
+                        moveIdsWithoutPackage: item['move_ids_without_package'],
+                        name: (item['partner_id'] == false)
+                            ? ""
+                            : item['partner_id'][1],
+                        location: item['name'],
+                        status: statusConverted,
+                        sku: item['origin'],
+                        date: item['scheduled_date'].toString(),
+                        isLate: isLate,
+                        isBackOrder: isBackOrder,
+                        backOrder: (item['backorder_id'] == false)
+                            ? <dynamic>[]
+                            : item['backorder_id']);
+                  }).toList();
+
+                  // Sort list of all listOperation, also listOperationLate by id
+                  listOperation
+                      .sort((a, b) => b.pickingId.compareTo(a.pickingId));
+
+                  if (listOperationLate.isEmpty) {
+                    listOperationLate = listOperation
+                        .where((element) => element.isLate == true)
+                        .toList();
                   }
 
-                  return OperationType(
-                      pickingId: item['id'],
-                      moveIdsWithoutPackage: item['move_ids_without_package'],
-                      name: (item['partner_id'] == false)
-                          ? ""
-                          : item['partner_id'][1],
-                      location: item['name'],
-                      status: statusConverted,
-                      sku: item['origin'],
-                      date: item['scheduled_date'].toString(),
-                      isLate: isLate,
-                      isBackOrder: isBackOrder,
-                      backOrder: (item['backorder_id'] == false)
-                          ? <dynamic>[]
-                          : item['backorder_id']);
-                }).toList();
+                  // log("listOperation ${listOperation.map((e) => e.toMap()).toList().toString()}");
+                  log("listOperationLate== ${listOperationLate.map((e) => e.status).toList()}");
+                  if (listResultLate.isEmpty || listResultLateTemp.isEmpty) {
+                    listResultLate.addAll(listOperationLate);
+                    listResultLateTemp.addAll(listOperationLate);
+                  }
+                  // log("listResultLateTemp ${listResultLateTemp.map((e) => e.location).toList()}");
 
-                // Sort list of all listOperation, also listOperationLate by id
-                listOperation
-                    .sort((a, b) => b.pickingId.compareTo(a.pickingId));
+                  // listResultLate = listResultLate
+                  //     .where((element) =>
+                  //         element.isLate == true &&
+                  //         element.status == "assigned")
+                  //     .toList();
 
-                if (listOperationLate.isEmpty) {
-                  listOperationLate = listOperation
-                      .where((element) => element.isLate == true)
+                  // listResultLateTemp = listResultLateTemp
+                  //     .where((element) =>
+                  //         element.isLate == true &&
+                  //         element.status == "assigned")
+                  //     .toList();
+
+                  listResult.addAll(listOperation);
+                  listResultTemp.addAll(listOperation);
+                }
+              } else if (statusReady.isHasData) {
+                // _loadingOverlay.hide();
+                setState(() {});
+
+                final listResponseReady =
+                    state.operationReadyState.data?.result;
+
+                int difference = 0;
+                if (listResponseReady != null) {
+                  listResultReady.clear();
+                  listOperationReady = listResponseReady.map((item) {
+                    final scheduleDate = item['scheduled_date'];
+                    final scheduleDateTime = DateTime.parse(scheduleDate);
+                    difference = daysBetween(scheduleDateTime, DateTime.now());
+
+                    bool isLate = (difference > 0) ? true : false;
+                    bool isBackOrder =
+                        (item['backorder_id'] != false) ? true : false;
+                    String statusConverted = "";
+
+                    if (item['state'] == "assigned") {
+                      // Ready
+                      statusConverted = "Ready";
+                    }
+
+                    return OperationType(
+                        pickingId: item['id'],
+                        moveIdsWithoutPackage: item['move_ids_without_package'],
+                        name: (item['partner_id'] == false)
+                            ? ""
+                            : item['partner_id'][1],
+                        location: item['name'],
+                        status: statusConverted,
+                        sku: item['origin'],
+                        date: item['scheduled_date'].toString(),
+                        isLate: isLate,
+                        isBackOrder: isBackOrder,
+                        backOrder: (item['backorder_id'] == false)
+                            ? <dynamic>[]
+                            : item['backorder_id']);
+                  }).toList();
+
+                  // Sort by id
+                  listOperationReady
+                      .sort((a, b) => b.pickingId.compareTo(a.pickingId));
+
+                  // log("listOperationReady ${listOperationReady.map((e) => e.name).toList()}");
+                  listResultReady.addAll(listOperationReady);
+                  listResultReadyTemp.addAll(listOperationReady);
+                  listResultReadyTemp = listResultReadyTemp
+                      .where((element) => element.isLate != true)
                       .toList();
+                  // log("listResultReadyTemp ${listResultReadyTemp.map((e) => e.name).toList()}");
+
+                  // listResultReady = listResultReady
+                  //     .where((element) => element.isLate != true)
+                  //     .toList();
                 }
+              } else if (statusWaiting.isHasData) {
+                // _loadingOverlay.hide();
+                setState(() {});
 
-                // log("listOperation ${listOperation.map((e) => e.toMap()).toList().toString()}");
-                log("listOperationLate== ${listOperationLate.map((e) => e.status).toList()}");
-                if (listResultLate.isEmpty || listResultLateTemp.isEmpty) {
-                  listResultLate.addAll(listOperationLate);
-                  listResultLateTemp.addAll(listOperationLate);
+                final listResponseWait =
+                    state.operationWaitingState.data?.result;
+
+                int difference = 0;
+                if (listResponseWait != null) {
+                  listResultWaiting.clear();
+                  listOperationWaiting = listResponseWait.map((item) {
+                    final scheduleDate = item['scheduled_date'];
+                    final scheduleDateTime = DateTime.parse(scheduleDate);
+                    difference = daysBetween(scheduleDateTime, DateTime.now());
+
+                    bool isLate = (difference > 0) ? true : false;
+                    bool isBackOrder =
+                        (item['backorder_id'] != false) ? true : false;
+                    String statusConverted = "";
+
+                    if (item['state'] == "confirmed") {
+                      // Waiting
+                      statusConverted = "Waiting";
+                    }
+
+                    return OperationType(
+                        pickingId: item['id'],
+                        moveIdsWithoutPackage: item['move_ids_without_package'],
+                        name: (item['partner_id'] == false)
+                            ? ""
+                            : item['partner_id'][1],
+                        location: item['name'],
+                        status: statusConverted,
+                        sku: item['origin'],
+                        date: item['scheduled_date'].toString(),
+                        isLate: isLate,
+                        isBackOrder: isBackOrder,
+                        backOrder: (item['backorder_id'] == false)
+                            ? <dynamic>[]
+                            : item['backorder_id']);
+                  }).toList();
+
+                  // Sort by id
+                  listOperationWaiting
+                      .sort((a, b) => b.pickingId.compareTo(a.pickingId));
+
+                  listResultWaiting.addAll(listOperationWaiting);
+                  listResultWaitingTemp.addAll(listOperationWaiting);
                 }
-                // log("listResultLateTemp ${listResultLateTemp.map((e) => e.location).toList()}");
+              } else if (statusBackOrder.isHasData) {
+                // _loadingOverlay.hide();
+                setState(() {});
 
-                // listResultLate = listResultLate
-                //     .where((element) =>
-                //         element.isLate == true &&
-                //         element.status == "assigned")
-                //     .toList();
+                final listResponseBackOrder =
+                    state.operationBackOrderState.data?.result;
 
-                // listResultLateTemp = listResultLateTemp
-                //     .where((element) =>
-                //         element.isLate == true &&
-                //         element.status == "assigned")
-                //     .toList();
+                int difference = 0;
+                if (listResponseBackOrder != null) {
+                  listResultBackOrder.clear();
+                  listOperationBackOrder = listResponseBackOrder.map((item) {
+                    final scheduleDate = item['scheduled_date'];
+                    final scheduleDateTime = DateTime.parse(scheduleDate);
+                    difference = daysBetween(scheduleDateTime, DateTime.now());
 
-                listResult.addAll(listOperation);
-                listResultTemp.addAll(listOperation);
+                    bool isLate = (difference > 0) ? true : false;
+                    bool isBackOrder =
+                        (item['backorder_id'] != false) ? true : false;
+                    String statusConverted = "";
+
+                    if (isBackOrder) {
+                      // Back Order
+                      statusConverted = "Back Order";
+                    }
+
+                    return OperationType(
+                        pickingId: item['id'],
+                        moveIdsWithoutPackage: item['move_ids_without_package'],
+                        name: (item['partner_id'] == false)
+                            ? ""
+                            : item['partner_id'][1],
+                        location: item['name'],
+                        status: statusConverted,
+                        sku: item['origin'],
+                        date: item['scheduled_date'].toString(),
+                        isLate: isLate,
+                        isBackOrder: isBackOrder,
+                        backOrder: (item['backorder_id'] == false)
+                            ? <dynamic>[]
+                            : item['backorder_id']);
+                  }).toList();
+                  // Sort by id
+                  listOperationBackOrder
+                      .sort((a, b) => b.pickingId.compareTo(a.pickingId));
+
+                  listResultBackOrder.addAll(listOperationBackOrder);
+                  listResultBackOrderTemp.addAll(listOperationBackOrder);
+                }
               }
-            } else if (statusReady.isHasData) {
-              // _loadingOverlay.hide();
-              setState(() {});
+            }, child: BlocBuilder<OperationCubit, OperationState>(
+                    builder: (context, state) {
+              final status = state.operationState.status;
+              final statusReady = state.operationReadyState.status;
+              final statusWaiting = state.operationWaitingState.status;
+              final statusBackOrder = state.operationBackOrderState.status;
 
-              final listResponseReady = state.operationReadyState.data?.result;
-
-              int difference = 0;
-              if (listResponseReady != null) {
-                listResultReady.clear();
-                listOperationReady = listResponseReady.map((item) {
-                  final scheduleDate = item['scheduled_date'];
-                  final scheduleDateTime = DateTime.parse(scheduleDate);
-                  difference = daysBetween(scheduleDateTime, DateTime.now());
-
-                  bool isLate = (difference > 0) ? true : false;
-                  bool isBackOrder =
-                      (item['backorder_id'] != false) ? true : false;
-                  String statusConverted = "";
-
-                  if (item['state'] == "assigned") {
-                    // Ready
-                    statusConverted = "Ready";
-                  }
-
-                  return OperationType(
-                      pickingId: item['id'],
-                      moveIdsWithoutPackage: item['move_ids_without_package'],
-                      name: (item['partner_id'] == false)
-                          ? ""
-                          : item['partner_id'][1],
-                      location: item['name'],
-                      status: statusConverted,
-                      sku: item['origin'],
-                      date: item['scheduled_date'].toString(),
-                      isLate: isLate,
-                      isBackOrder: isBackOrder,
-                      backOrder: (item['backorder_id'] == false)
-                          ? <dynamic>[]
-                          : item['backorder_id']);
-                }).toList();
-
-                // Sort by id
-                listOperationReady
-                    .sort((a, b) => b.pickingId.compareTo(a.pickingId));
-
-                // log("listOperationReady ${listOperationReady.map((e) => e.name).toList()}");
-                listResultReady.addAll(listOperationReady);
-                listResultReadyTemp.addAll(listOperationReady);
-                listResultReadyTemp = listResultReadyTemp
-                    .where((element) => element.isLate != true)
-                    .toList();
-                // log("listResultReadyTemp ${listResultReadyTemp.map((e) => e.name).toList()}");
-
-                // listResultReady = listResultReady
-                //     .where((element) => element.isLate != true)
-                //     .toList();
-              }
-            } else if (statusWaiting.isHasData) {
-              // _loadingOverlay.hide();
-              setState(() {});
-
-              final listResponseWait = state.operationWaitingState.data?.result;
-
-              int difference = 0;
-              if (listResponseWait != null) {
-                listResultWaiting.clear();
-                listOperationWaiting = listResponseWait.map((item) {
-                  final scheduleDate = item['scheduled_date'];
-                  final scheduleDateTime = DateTime.parse(scheduleDate);
-                  difference = daysBetween(scheduleDateTime, DateTime.now());
-
-                  bool isLate = (difference > 0) ? true : false;
-                  bool isBackOrder =
-                      (item['backorder_id'] != false) ? true : false;
-                  String statusConverted = "";
-
-                  if (item['state'] == "confirmed") {
-                    // Waiting
-                    statusConverted = "Waiting";
-                  }
-
-                  return OperationType(
-                      pickingId: item['id'],
-                      moveIdsWithoutPackage: item['move_ids_without_package'],
-                      name: (item['partner_id'] == false)
-                          ? ""
-                          : item['partner_id'][1],
-                      location: item['name'],
-                      status: statusConverted,
-                      sku: item['origin'],
-                      date: item['scheduled_date'].toString(),
-                      isLate: isLate,
-                      isBackOrder: isBackOrder,
-                      backOrder: (item['backorder_id'] == false)
-                          ? <dynamic>[]
-                          : item['backorder_id']);
-                }).toList();
-
-                // Sort by id
-                listOperationWaiting
-                    .sort((a, b) => b.pickingId.compareTo(a.pickingId));
-
-                listResultWaiting.addAll(listOperationWaiting);
-                listResultWaitingTemp.addAll(listOperationWaiting);
-              }
-            } else if (statusBackOrder.isHasData) {
-              // _loadingOverlay.hide();
-              setState(() {});
-
-              final listResponseBackOrder =
-                  state.operationBackOrderState.data?.result;
-
-              int difference = 0;
-              if (listResponseBackOrder != null) {
-                listResultBackOrder.clear();
-                listOperationBackOrder = listResponseBackOrder.map((item) {
-                  final scheduleDate = item['scheduled_date'];
-                  final scheduleDateTime = DateTime.parse(scheduleDate);
-                  difference = daysBetween(scheduleDateTime, DateTime.now());
-
-                  bool isLate = (difference > 0) ? true : false;
-                  bool isBackOrder =
-                      (item['backorder_id'] != false) ? true : false;
-                  String statusConverted = "";
-
-                  if (isBackOrder) {
-                    // Back Order
-                    statusConverted = "Back Order";
-                  }
-
-                  return OperationType(
-                      pickingId: item['id'],
-                      moveIdsWithoutPackage: item['move_ids_without_package'],
-                      name: (item['partner_id'] == false)
-                          ? ""
-                          : item['partner_id'][1],
-                      location: item['name'],
-                      status: statusConverted,
-                      sku: item['origin'],
-                      date: item['scheduled_date'].toString(),
-                      isLate: isLate,
-                      isBackOrder: isBackOrder,
-                      backOrder: (item['backorder_id'] == false)
-                          ? <dynamic>[]
-                          : item['backorder_id']);
-                }).toList();
-                // Sort by id
-                listOperationBackOrder
-                    .sort((a, b) => b.pickingId.compareTo(a.pickingId));
-
-                listResultBackOrder.addAll(listOperationBackOrder);
-                listResultBackOrderTemp.addAll(listOperationBackOrder);
-              }
-            }
-          }, child: BlocBuilder<OperationCubit, OperationState>(
-                  builder: (context, state) {
-            final status = state.operationState.status;
-            final statusReady = state.operationReadyState.status;
-            final statusWaiting = state.operationWaitingState.status;
-            final statusBackOrder = state.operationBackOrderState.status;
-
-            return TabBarView(controller: _tabController, children: [
-              (status.isLoading)
-                  ? const SizedBox()
-                  : (context.read<OperationCubit>().isNoData)
-                      ? buildEmptyResultOperation(context)
-                      : Container(
-                          // inventory-v1.0.12-1
-                          // FIX: warna background ganti: E6EAEF
-                          color: ColorName.disableColor,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: SizedBox(
+              return TabBarView(controller: _tabController, children: [
+                (status.isLoading)
+                    ? _buildLoadingWidget()
+                    : (context.read<OperationCubit>().isNoData)
+                        ? RefreshIndicator.adaptive(
+                            backgroundColor: Colors.white,
+                            color: ColorName.mainColor,
+                            onRefresh: () => getOperation(
+                                pickingTypeId: widget.argument.pickingTypeId),
+                            child: buildEmptyResultOperation(context))
+                        : Container(
+                            // inventory-v1.0.12-1
+                            // FIX: warna background ganti: E6EAEF
+                            color: ColorName.disableColor,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: SizedBox(
                               child: Scrollbar(
-                            radius: const Radius.circular(45),
-                            controller: scrollController,
-                            child: RefreshIndicator.adaptive(
-                              color: Colors.white,
-                              backgroundColor: ColorName.mainColor,
-                              onRefresh: () => getOperation(
-                                  pickingTypeId: widget.argument.pickingTypeId),
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  controller: scrollController,
-                                  physics: const BouncingScrollPhysics(),
-                                  itemCount: listResult.length,
-                                  itemBuilder: (context, index) {
-                                    // bool isBackOrder =
-                                    //     (listOperation[index].location == "Surabaya")
-                                    //         ? true
-                                    //         : false;
+                                radius: const Radius.circular(45),
+                                controller: scrollController,
+                                child: RefreshIndicator.adaptive(
+                                  backgroundColor: Colors.white,
+                                  color: ColorName.mainColor,
+                                  onRefresh: () => getOperation(
+                                      pickingTypeId:
+                                          widget.argument.pickingTypeId),
+                                  child: ListView.builder(
+                                      shrinkWrap: true,
+                                      controller: scrollController,
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      itemCount: listResult.length,
+                                      itemBuilder: (context, index) {
+                                        // bool isBackOrder =
+                                        //     (listOperation[index].location == "Surabaya")
+                                        //         ? true
+                                        //         : false;
 
-                                    var item = listResult[index];
+                                        var item = listResult[index];
 
-                                    return buildOperationItem(item: item);
-                                  }),
+                                        return buildOperationItem(item: item);
+                                      }),
+                                ),
+                              ),
                             ),
-                          )),
-                        ),
-              // const Center(child: Text('Semua Content')),
-              (statusReady.isLoading)
-                  ? const SizedBox()
-                  : (listResultReady.isEmpty)
-                      ? buildEmptyResultOperation(context)
-                      : Container(
-                          // inventory-v1.0.12-1
-                          // FIX: warna background ganti: E6EAEF
-                          color: ColorName.disableColor,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: SizedBox(
-                              child: Scrollbar(
-                            radius: const Radius.circular(45),
-                            controller: scrollController,
-                            child: RefreshIndicator.adaptive(
-                              color: Colors.white,
-                              backgroundColor: ColorName.mainColor,
-                              onRefresh: () => getOperationReady(
-                                  pickingTypeId: widget.argument.pickingTypeId),
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  controller: scrollController,
-                                  physics: const BouncingScrollPhysics(),
-                                  itemCount: listResultReady.length,
-                                  itemBuilder: (context, index) {
-                                    var item = listResultReady[index];
-
-                                    return buildOperationItem(item: item);
-                                  }),
-                            ),
-                          )),
-                        ),
-
-              (statusWaiting.isLoading)
-                  ? const SizedBox()
-                  : (listResultWaiting.isEmpty)
-                      ? buildEmptyResultOperation(context)
-                      : Container(
-                          // inventory-v1.0.12-1
-                          // FIX: warna background ganti: E6EAEF
-                          color: ColorName.disableColor,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: SizedBox(
-                              child: Scrollbar(
-                            radius: const Radius.circular(45),
-                            controller: scrollController,
-                            child: RefreshIndicator.adaptive(
-                              color: Colors.white,
-                              backgroundColor: ColorName.mainColor,
-                              onRefresh: () => getOperationWaiting(
-                                  pickingTypeId: widget.argument.pickingTypeId),
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const BouncingScrollPhysics(),
-                                  controller: scrollController,
-                                  itemCount: listResultWaiting.length,
-                                  itemBuilder: (context, index) {
-                                    var item = listResultWaiting[index];
-
-                                    return buildOperationItem(item: item);
-                                  }),
-                            ),
-                          )),
-                        ),
-
-              (listResultLate.isEmpty)
-                  ? buildEmptyResultOperation(context)
-                  : Container(
-                      // inventory-v1.0.12-1
-                      // FIX: warna background ganti: E6EAEF
-                      color: ColorName.disableColor,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: SizedBox(
-                          child: Scrollbar(
-                        radius: const Radius.circular(45),
-                        controller: scrollController,
-                        child: RefreshIndicator.adaptive(
-                          color: Colors.white,
-                          backgroundColor: ColorName.mainColor,
-                          onRefresh: () => getOperation(
-                              pickingTypeId: widget.argument.pickingTypeId),
-                          child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: const BouncingScrollPhysics(),
+                          ),
+                // const Center(child: Text('Semua Content')),
+                (statusReady.isLoading)
+                    ? _buildLoadingWidget()
+                    : (listResultReady.isEmpty)
+                        ? RefreshIndicator.adaptive(
+                            backgroundColor: Colors.white,
+                            color: ColorName.mainColor,
+                            onRefresh: () => getOperationReady(
+                                pickingTypeId: widget.argument.pickingTypeId),
+                            child: buildEmptyResultOperation(context))
+                        : Container(
+                            // inventory-v1.0.12-1
+                            // FIX: warna background ganti: E6EAEF
+                            color: ColorName.disableColor,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: SizedBox(
+                                child: Scrollbar(
+                              radius: const Radius.circular(45),
                               controller: scrollController,
-                              itemCount: listResultLate.length,
-                              itemBuilder: (context, index) {
-                                var item = listResultLate[index];
+                              child: RefreshIndicator.adaptive(
+                                backgroundColor: Colors.white,
+                                color: ColorName.mainColor,
+                                onRefresh: () => getOperationReady(
+                                    pickingTypeId:
+                                        widget.argument.pickingTypeId),
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    controller: scrollController,
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    itemCount: listResultReady.length,
+                                    itemBuilder: (context, index) {
+                                      var item = listResultReady[index];
 
-                                return buildOperationItem(item: item);
-                              }),
-                        ),
-                      )),
-                    ),
+                                      return buildOperationItem(item: item);
+                                    }),
+                              ),
+                            )),
+                          ),
 
-              (statusBackOrder.isLoading)
-                  ? const SizedBox()
-                  : (listResultBackOrder.isEmpty)
-                      ? buildEmptyResultOperation(context)
-                      : Container(
-                          // inventory-v1.0.12-1
-                          // FIX: warna background ganti: E6EAEF
-                          color: ColorName.disableColor,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: SizedBox(
-                              child: Scrollbar(
-                            radius: const Radius.circular(45),
-                            controller: scrollController,
-                            child: RefreshIndicator.adaptive(
-                              color: Colors.white,
-                              backgroundColor: ColorName.mainColor,
-                              onRefresh: () => getOperationBackOrder(
-                                  pickingTypeId: widget.argument.pickingTypeId),
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const BouncingScrollPhysics(),
-                                  controller: scrollController,
-                                  itemCount: listResultBackOrder.length,
-                                  itemBuilder: (context, index) {
-                                    var item = listResultBackOrder[index];
+                (statusWaiting.isLoading)
+                    ? _buildLoadingWidget()
+                    : (listResultWaiting.isEmpty)
+                        ? RefreshIndicator.adaptive(
+                            backgroundColor: Colors.white,
+                            color: ColorName.mainColor,
+                            onRefresh: () => getOperationWaiting(
+                                pickingTypeId: widget.argument.pickingTypeId),
+                            child: buildEmptyResultOperation(context))
+                        : Container(
+                            // inventory-v1.0.12-1
+                            // FIX: warna background ganti: E6EAEF
+                            color: ColorName.disableColor,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: SizedBox(
+                                child: Scrollbar(
+                              radius: const Radius.circular(45),
+                              controller: scrollController,
+                              child: RefreshIndicator.adaptive(
+                                backgroundColor: Colors.white,
+                                color: ColorName.mainColor,
+                                onRefresh: () => getOperationWaiting(
+                                    pickingTypeId:
+                                        widget.argument.pickingTypeId),
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    controller: scrollController,
+                                    itemCount: listResultWaiting.length,
+                                    itemBuilder: (context, index) {
+                                      var item = listResultWaiting[index];
 
-                                    return buildOperationItem(item: item);
-                                  }),
-                            ),
-                          )),
-                        ),
-            ]);
-          })),
+                                      return buildOperationItem(item: item);
+                                    }),
+                              ),
+                            )),
+                          ),
+
+                (listResultLate.isEmpty)
+                    ? RefreshIndicator.adaptive(
+                        backgroundColor: Colors.white,
+                        color: ColorName.mainColor,
+                        onRefresh: () => getOperation(
+                            pickingTypeId: widget.argument.pickingTypeId),
+                        child: buildEmptyResultOperation(context))
+                    : Container(
+                        // inventory-v1.0.12-1
+                        // FIX: warna background ganti: E6EAEF
+                        color: ColorName.disableColor,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: SizedBox(
+                            child: Scrollbar(
+                          radius: const Radius.circular(45),
+                          controller: scrollController,
+                          child: RefreshIndicator.adaptive(
+                            backgroundColor: Colors.white,
+                            color: ColorName.mainColor,
+                            onRefresh: () => getOperation(
+                                pickingTypeId: widget.argument.pickingTypeId),
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                controller: scrollController,
+                                itemCount: listResultLate.length,
+                                itemBuilder: (context, index) {
+                                  var item = listResultLate[index];
+
+                                  return buildOperationItem(item: item);
+                                }),
+                          ),
+                        )),
+                      ),
+
+                (statusBackOrder.isLoading)
+                    ? _buildLoadingWidget()
+                    : (listResultBackOrder.isEmpty)
+                        ? RefreshIndicator.adaptive(
+                            backgroundColor: Colors.white,
+                            color: ColorName.mainColor,
+                            onRefresh: () => getOperationBackOrder(
+                                pickingTypeId: widget.argument.pickingTypeId),
+                            child: buildEmptyResultOperation(context))
+                        : Container(
+                            // inventory-v1.0.12-1
+                            // FIX: warna background ganti: E6EAEF
+                            color: ColorName.disableColor,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: SizedBox(
+                                child: Scrollbar(
+                              radius: const Radius.circular(45),
+                              controller: scrollController,
+                              child: RefreshIndicator.adaptive(
+                                backgroundColor: Colors.white,
+                                color: ColorName.mainColor,
+                                onRefresh: () => getOperationBackOrder(
+                                    pickingTypeId:
+                                        widget.argument.pickingTypeId),
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    controller: scrollController,
+                                    itemCount: listResultBackOrder.length,
+                                    itemBuilder: (context, index) {
+                                      var item = listResultBackOrder[index];
+
+                                      return buildOperationItem(item: item);
+                                    }),
+                              ),
+                            )),
+                          ),
+              ]);
+            })),
+          ),
         ),
       ),
     );
+  }
+
+  Center _buildLoadingWidget() {
+    return const Center(
+        child: CircularProgressIndicator.adaptive(
+      backgroundColor: ColorName.mainColor,
+    ));
   }
 
   // Future<void> _onRefresh() {
